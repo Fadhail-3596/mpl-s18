@@ -1,0 +1,6 @@
+{
+  "name": "MPL ID S18 Playoff Calculator",
+  "description": "MPL Indonesia Season 18 Playoff Calculator, Standings Engine, and Monte Carlo What-If Simulator",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

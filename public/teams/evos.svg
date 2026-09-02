@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <!-- EVOS Blue Crest Shield -->
+  <path d="M 30 50 L 220 30 L 235 150 C 235 195 170 230 128 245 C 80 230 20 190 20 140 Z" fill="#0F2438" stroke="#38BDF8" stroke-width="6"/>
+  
+  <!-- Roaring White Tiger Head Profile -->
+  <g transform="translate(15, 10)">
+    <!-- Tiger Ears & Head Outline -->
+    <path d="M 125 35 L 145 60 L 165 40 L 180 80 L 210 110 L 180 120 L 205 145 L 155 160 L 125 190 L 110 170 L 80 185 L 60 160 L 75 140 L 45 145 L 35 120 L 70 100 L 50 80 L 85 70 Z" fill="#FFFFFF"/>
+    
+    <!-- Tiger Black/Navy Fur Stripes & Jaw -->
+    <path d="M 105 75 L 130 95 L 95 105 Z" fill="#0F2438"/>
+    <path d="M 140 100 L 170 115 L 135 130 Z" fill="#0F2438"/>
+    <path d="M 85 125 L 120 140 L 75 155 Z" fill="#0F2438"/>
+    <path d="M 115 150 L 150 165 L 110 175 Z" fill="#0F2438"/>
+    
+    <!-- Tiger Cyan Eye -->
+    <polygon points="145,95 165,85 155,100" fill="#38BDF8"/>
+    
+    <!-- Open Roaring Mouth & Fangs -->
+    <path d="M 145 135 L 180 155 L 135 175 Z" fill="#0F2438"/>
+    <polygon points="148,135 155,148 160,138" fill="#FFFFFF"/>
+    <polygon points="140,172 148,160 155,170" fill="#FFFFFF"/>
+    <path d="M 152 150 Q 165 152 175 158" stroke="#38BDF8" stroke-width="4" fill="none"/>
+  </g>
+  
+  <!-- EVOS Cyan Badge at Bottom -->
+  <path d="M 105 175 L 225 145 L 210 220 L 95 240 Z" fill="#0F2438" stroke="#38BDF8" stroke-width="4"/>
+  <text x="160" y="215" transform="rotate(-12 160 215)" font-family="'Impact', 'Arial Black', sans-serif" font-size="42" font-weight="900" fill="#38BDF8" text-anchor="middle" letter-spacing="3">EVOS</text>
+</svg>

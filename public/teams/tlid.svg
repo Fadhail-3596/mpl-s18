@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <!-- Navy Blue Shield Container -->
+  <path d="M 35 40 L 221 40 L 221 140 C 221 190 160 225 128 238 C 96 225 35 190 35 140 Z" fill="#0A182E" stroke="#003566" stroke-width="8" stroke-linejoin="round"/>
+  
+  <!-- Silver / White Mane Spikes in Arch -->
+  <!-- Mane Segment 1 -->
+  <polygon points="55,85 75,55 95,95" fill="#E2E8F0"/>
+  <!-- Mane Segment 2 -->
+  <polygon points="85,60 115,45 125,90" fill="#E2E8F0"/>
+  <!-- Mane Segment 3 -->
+  <polygon points="125,50 160,50 150,95" fill="#E2E8F0"/>
+  <!-- Mane Segment 4 -->
+  <polygon points="160,60 190,75 170,110" fill="#E2E8F0"/>
+  
+  <!-- Warhorse Head Silhouette (Dark Navy) -->
+  <path d="M 75 170 
+           C 75 120 100 90 145 90 
+           L 155 70 
+           L 175 95 
+           C 185 110 190 130 180 145
+           L 190 155
+           L 175 165
+           L 165 155
+           C 155 170 140 180 120 185
+           L 135 150
+           L 115 155
+           L 95 190 Z" fill="#E2E8F0"/>
+           
+  <!-- Horse Eye -->
+  <polygon points="165,120 178,125 168,130" fill="#0A182E"/>
+</svg>

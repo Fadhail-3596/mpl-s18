@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <!-- Fnatic ONIC Hedgehog Silhouette -->
+  <!-- Aggressive Black Spikes / Hedgehog Head pointing right -->
+  <path d="M 140 38 
+           L 115 55 L 135 62 L 95 80 L 120 90 L 70 115 L 105 125 L 50 155 L 90 162 L 40 195 L 100 195
+           C 110 175 130 175 140 195 L 160 195
+           C 160 180 180 160 195 170
+           L 245 80
+           L 210 110
+           L 215 75
+           L 185 100
+           L 175 60
+           L 155 80 Z" 
+        fill="#0A0B0E" stroke="#FACC15" stroke-width="5" stroke-linejoin="round"/>
+        
+  <!-- Hedgehog eye slit -->
+  <polygon points="175,98 215,88 190,105" fill="#FFFFFF"/>
+</svg>

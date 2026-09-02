@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ae-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E50914" />
+      <stop offset="100%" stop-color="#8B0000" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Shield Crest -->
+  <path d="M 40 40 L 216 40 L 236 120 C 236 180 180 230 128 245 C 76 230 20 180 20 120 Z" fill="#111317" stroke="url(#ae-bg)" stroke-width="10" stroke-linejoin="round" />
+  
+  <!-- ALTER text arch banner -->
+  <path d="M 48 48 Q 128 20 208 48 L 202 85 Q 128 65 54 85 Z" fill="#990000" />
+  <text x="128" y="70" font-family="'Impact', 'Arial Black', sans-serif" font-size="34" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">AL<tspan fill="#E50914">T</tspan>ER</text>
+  
+  <!-- Three Masks in Center -->
+  <!-- Left Mask (Angled Smile) -->
+  <g transform="translate(68, 130) rotate(-10) scale(0.6)">
+    <path d="M -40 -50 C 40 -50 45 30 0 65 C -45 30 -40 -50 -40 -50 Z" fill="#9CA3AF" stroke="#1F2937" stroke-width="4"/>
+    <!-- Eyes -->
+    <ellipse cx="-18" cy="-10" rx="8" ry="5" fill="#111827"/>
+    <circle cx="-18" cy="-10" r="3" fill="#EF4444"/>
+    <ellipse cx="18" cy="-10" rx="8" ry="5" fill="#111827"/>
+    <circle cx="18" cy="-10" r="3" fill="#EF4444"/>
+    <!-- Smirk -->
+    <path d="M -15 25 Q 0 42 20 20" stroke="#111827" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Right Mask (Angled Sad/Stern) -->
+  <g transform="translate(188, 130) rotate(10) scale(0.6)">
+    <path d="M -40 -50 C 40 -50 45 30 0 65 C -45 30 -40 -50 -40 -50 Z" fill="#9CA3AF" stroke="#1F2937" stroke-width="4"/>
+    <!-- Eyes -->
+    <ellipse cx="-18" cy="-10" rx="8" ry="5" fill="#111827"/>
+    <circle cx="-18" cy="-10" r="3" fill="#EF4444"/>
+    <ellipse cx="18" cy="-10" rx="8" ry="5" fill="#111827"/>
+    <circle cx="18" cy="-10" r="3" fill="#EF4444"/>
+    <!-- Down mouth -->
+    <path d="M -18 30 Q 0 15 18 30" stroke="#111827" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Center Main Mask -->
+  <g transform="translate(128, 135) scale(0.72)">
+    <path d="M -45 -55 C 45 -55 50 35 0 75 C -50 35 -45 -55 -45 -55 Z" fill="#D1D5DB" stroke="#111827" stroke-width="5"/>
+    <!-- Brow & Eyes -->
+    <path d="M -30 -20 L -8 -15 M 8 -15 L 30 -20" stroke="#111827" stroke-width="4" stroke-linecap="round" />
+    <ellipse cx="-20" cy="-6" rx="9" ry="6" fill="#111827"/>
+    <circle cx="-20" cy="-6" r="3.5" fill="#DC2626"/>
+    <ellipse cx="20" cy="-6" rx="9" ry="6" fill="#111827"/>
+    <circle cx="20" cy="-6" r="3.5" fill="#DC2626"/>
+    <!-- Nose line -->
+    <path d="M 0 -8 L -4 15 L 4 15 Z" fill="#9CA3AF" />
+    <!-- Straight firm mouth -->
+    <path d="M -16 35 L 16 35" stroke="#111827" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  
+  <!-- EGO Bottom Banner -->
+  <rect x="74" y="198" width="108" height="34" rx="6" fill="#111317" stroke="#E50914" stroke-width="4" />
+  <text x="128" y="223" font-family="'Impact', 'Arial Black', sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">EGO</text>
+</svg>
