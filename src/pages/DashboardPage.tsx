@@ -129,62 +129,106 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <span>Peluang Playoff (Estimated Playoff Chance)</span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Berdasarkan hasil saat ini dan sisa 72 pertandingan Regular Season.
+              {completedCount > 0
+                ? `Berdasarkan ${completedCount} pertandingan selesai dan sisa ${72 - completedCount} laga Regular Season.`
+                : 'Musim belum dimulai (0 laga selesai). Input hasil manual atau muat template untuk menghitung peluang.'}
             </p>
           </div>
-          <button
-            onClick={() => setActiveTab('playoff')}
-            className="text-xs font-bold text-[#00D4FF] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>Lihat Peta Persaingan Playoff</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          {completedCount > 0 && (
+            <button
+              onClick={() => setActiveTab('playoff')}
+              className="text-xs font-bold text-[#00D4FF] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>Lihat Peta Persaingan Playoff</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        {/* Probability Bars */}
-        <div className="space-y-3.5">
-          {sortedProbabilities.map((prob) => {
-            const chance = prob.playoffChance;
-            const meta = getPlayoffStatusMeta(chance);
+        {/* If 0 matches completed: display clean neutral state */}
+        {completedCount === 0 ? (
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl bg-[#141720] border border-slate-800 text-center space-y-2">
+              <p className="text-xs text-slate-400">
+                Peluang playoff berstatus <span className="text-slate-200 font-bold">Netral / Belum Dihitung</span> karena belum ada pertandingan yang selesai.
+              </p>
+            </div>
 
-            return (
-              <div
-                key={prob.teamId}
-                onClick={() => onSelectTeam(prob.teamId)}
-                className="bg-[#181B24] hover:bg-slate-800/60 p-3 sm:p-4 rounded-xl border border-slate-800/80 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="space-y-2.5">
+              {standings.map((st) => (
+                <div
+                  key={st.teamId}
+                  onClick={() => onSelectTeam(st.teamId)}
+                  className="bg-[#181B24] hover:bg-slate-800/60 p-3 sm:p-3.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer group flex items-center justify-between gap-3"
+                >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <TeamLogo teamId={prob.teamId} size="sm" />
+                    <TeamLogo teamId={st.teamId} size="sm" />
                     <span className="font-bold text-sm text-slate-100 group-hover:text-[#00D4FF] transition-colors truncate">
-                      {prob.team.shortName}
+                      {st.team.shortName}
                     </span>
-                    <span className="text-xs text-slate-400 font-bold truncate hidden sm:inline uppercase">
-                      — {prob.team.name}
+                    <span className="text-xs text-slate-500 font-medium truncate hidden sm:inline uppercase">
+                      — {st.team.name}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${meta.badgeBg} ${meta.color}`}>
-                      {meta.label}
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-slate-700 bg-slate-800 text-slate-400">
+                      Belum Ada Data
                     </span>
-                    <span className={`font-mono font-black text-sm sm:text-base ${meta.color} min-w-[64px] text-right`}>
-                      {chance.toFixed(2)}%
+                    <span className="font-mono font-bold text-xs text-slate-500 min-w-[50px] text-right">
+                      - %
                     </span>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* Probability Bars when data exists */
+          <div className="space-y-3.5">
+            {sortedProbabilities.map((prob) => {
+              const chance = prob.playoffChance;
+              const meta = getPlayoffStatusMeta(chance);
 
-                {/* Progress Bar */}
-                <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-[1px] border border-slate-800">
-                  <div
-                    className={`h-full rounded-full bg-gradient-to-r ${meta.barBg} transition-all duration-500`}
-                    style={{ width: `${Math.max(chance, 1.5)}%` }}
-                  />
+              return (
+                <div
+                  key={prob.teamId}
+                  onClick={() => onSelectTeam(prob.teamId)}
+                  className="bg-[#181B24] hover:bg-slate-800/60 p-3 sm:p-4 rounded-xl border border-slate-800/80 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <TeamLogo teamId={prob.teamId} size="sm" />
+                      <span className="font-bold text-sm text-slate-100 group-hover:text-[#00D4FF] transition-colors truncate">
+                        {prob.team.shortName}
+                      </span>
+                      <span className="text-xs text-slate-400 font-bold truncate hidden sm:inline uppercase">
+                        — {prob.team.name}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${meta.badgeBg} ${meta.color}`}>
+                        {meta.label}
+                      </span>
+                      <span className={`font-mono font-black text-sm sm:text-base ${meta.color} min-w-[64px] text-right`}>
+                        {chance.toFixed(2)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-[1px] border border-slate-800">
+                    <div
+                      className={`h-full rounded-full bg-gradient-to-r ${meta.barBg} transition-all duration-500`}
+                      style={{ width: `${Math.max(chance, 1.5)}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 4. Next Match Section */}

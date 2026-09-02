@@ -15,11 +15,15 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
   probabilities,
   onSelectTeam
 }) => {
+  const isSeasonStarted = standings.some((s) => s.played > 0);
   const upperBracket = standings.slice(0, 2);
   const playIn = standings.slice(2, 6);
   const eliminated = standings.slice(6, 9);
 
   const getStatusLabel = (chance: number) => {
+    if (!isSeasonStarted) {
+      return { label: 'Belum Dimulai', color: 'text-slate-400', badge: 'bg-slate-800 border-slate-700' };
+    }
     if (chance >= 95) return { label: 'Aman', color: 'text-emerald-400', badge: 'bg-emerald-500/15 border-emerald-500/30' };
     if (chance >= 70) return { label: 'Peluang Kuat', color: 'text-emerald-400', badge: 'bg-emerald-500/15 border-emerald-500/30' };
     if (chance >= 40) return { label: 'Masih Terbuka', color: 'text-amber-400', badge: 'bg-amber-500/15 border-amber-500/30' };
@@ -99,7 +103,7 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
 
                     <div className="text-right">
                       <div className="text-xs font-bold text-emerald-400 font-mono">
-                        {prob ? `${prob.upperBracketChance.toFixed(2)}%` : '-'}
+                        {isSeasonStarted && prob ? `${prob.upperBracketChance.toFixed(2)}%` : '- %'}
                       </div>
                       <div className="text-[10px] text-slate-500">Upper Chance</div>
                     </div>
@@ -147,7 +151,7 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
 
                     <div className="text-right">
                       <div className="text-xs font-bold text-sky-400 font-mono">
-                        {prob ? `${prob.playoffChance.toFixed(2)}%` : '-'}
+                        {isSeasonStarted && prob ? `${prob.playoffChance.toFixed(2)}%` : '- %'}
                       </div>
                       <div className="text-[10px] text-slate-500">Playoff Chance</div>
                     </div>
@@ -195,7 +199,7 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
 
                     <div className="text-right">
                       <div className="text-xs font-bold text-red-400 font-mono">
-                        {prob ? `${prob.eliminationChance.toFixed(2)}%` : '-'}
+                        {isSeasonStarted && prob ? `${prob.eliminationChance.toFixed(2)}%` : '- %'}
                       </div>
                       <div className="text-[10px] text-slate-500">Elim Chance</div>
                     </div>
@@ -257,21 +261,21 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
                     <div className="bg-[#181B24]/80 p-2.5 rounded-xl border border-slate-800">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase">Playoff</div>
                       <div className="text-base font-black text-emerald-400 font-mono mt-0.5">
-                        {chance.toFixed(2)}%
+                        {isSeasonStarted ? `${chance.toFixed(2)}%` : '- %'}
                       </div>
                     </div>
 
                     <div className="bg-[#181B24]/80 p-2.5 rounded-xl border border-slate-800">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase">Upper</div>
                       <div className="text-base font-black text-sky-400 font-mono mt-0.5">
-                        {upper.toFixed(2)}%
+                        {isSeasonStarted ? `${upper.toFixed(2)}%` : '- %'}
                       </div>
                     </div>
 
                     <div className="bg-[#181B24]/80 p-2.5 rounded-xl border border-slate-800">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase">Eliminasi</div>
                       <div className="text-base font-black text-red-400 font-mono mt-0.5">
-                        {elim.toFixed(2)}%
+                        {isSeasonStarted ? `${elim.toFixed(2)}%` : '- %'}
                       </div>
                     </div>
                   </div>

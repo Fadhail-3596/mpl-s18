@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 560" width="100%" height="100%">
+  <defs>
+    <!-- Ultra Metallic Chrome & Silver Gradients -->
+    <linearGradient id="mpl-chrome-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="20%" stop-color="#F1F5F9" />
+      <stop offset="45%" stop-color="#CBD5E1" />
+      <stop offset="55%" stop-color="#64748B" />
+      <stop offset="85%" stop-color="#94A3B8" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+
+    <linearGradient id="mpl-chrome-shade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#94A3B8" />
+      <stop offset="40%" stop-color="#475569" />
+      <stop offset="80%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+
+    <linearGradient id="mpl-beveled-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#E2E8F0" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#64748B" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Deep Midnight Shield Gradient -->
+    <linearGradient id="mpl-shield-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0B132B" />
+      <stop offset="35%" stop-color="#1C2541" />
+      <stop offset="70%" stop-color="#0E1726" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <!-- Gold Accent Gradients -->
+    <linearGradient id="mpl-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="25%" stop-color="#FDE047" />
+      <stop offset="60%" stop-color="#EAB308" />
+      <stop offset="85%" stop-color="#CA8A04" />
+      <stop offset="100%" stop-color="#854D0E" />
+    </linearGradient>
+
+    <!-- Red Accent Gradients -->
+    <linearGradient id="mpl-red-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F87171" />
+      <stop offset="40%" stop-color="#EF4444" />
+      <stop offset="80%" stop-color="#B91C1C" />
+      <stop offset="100%" stop-color="#7F1D1D" />
+    </linearGradient>
+
+    <!-- Drop Shadows & Glow -->
+    <filter id="mpl-glow-strong" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.75" />
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#00D4FF" flood-opacity="0.25" />
+    </filter>
+
+    <filter id="mpl-letter-3d" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.9" />
+    </filter>
+  </defs>
+
+  <!-- Group 1: Grand Outer Wings & Crystal Shards -->
+  <g id="outer-wings" filter="url(#mpl-glow-strong)" stroke="#090D16" stroke-width="2" stroke-linejoin="round">
+    
+    <!-- LEFT WING -->
+    <!-- Primary Top Shard -->
+    <polygon points="250,240 180,150 15,10 90,165 155,230" fill="url(#mpl-chrome-top)" />
+    <polygon points="15,10 180,150 250,240 155,230 90,165" fill="none" stroke="url(#mpl-beveled-highlight)" stroke-width="1.5" />
+    
+    <!-- Second Upper Shard -->
+    <polygon points="250,260 175,195 38,110 100,205 165,255" fill="url(#mpl-chrome-shade)" />
+    <!-- Third Middle Shard -->
+    <polygon points="250,280 165,235 55,185 110,245 175,290" fill="url(#mpl-chrome-top)" />
+    <!-- Fourth Lower Shard -->
+    <polygon points="250,300 170,270 85,255 125,295 185,320" fill="url(#mpl-chrome-shade)" />
+    <!-- Fifth Base Shard -->
+    <polygon points="250,320 180,300 120,325 155,348 205,350" fill="url(#mpl-chrome-top)" />
+
+    <!-- RIGHT WING -->
+    <!-- Primary Top Shard -->
+    <polygon points="250,240 320,150 485,10 410,165 345,230" fill="url(#mpl-chrome-top)" />
+    <polygon points="485,10 320,150 250,240 345,230 410,165" fill="none" stroke="url(#mpl-beveled-highlight)" stroke-width="1.5" />
+    
+    <!-- Second Upper Shard -->
+    <polygon points="250,260 325,195 462,110 400,205 335,255" fill="url(#mpl-chrome-shade)" />
+    <!-- Third Middle Shard -->
+    <polygon points="250,280 335,235 445,185 390,245 325,290" fill="url(#mpl-chrome-top)" />
+    <!-- Fourth Lower Shard -->
+    <polygon points="250,300 330,270 415,255 375,295 315,320" fill="url(#mpl-chrome-shade)" />
+    <!-- Fifth Base Shard -->
+    <polygon points="250,320 320,300 380,325 345,348 295,350" fill="url(#mpl-chrome-top)" />
+  </g>
+
+  <!-- Group 2: Bottom Radial Spike Crown -->
+  <g id="bottom-radial-spikes" stroke="#050811" stroke-width="2" stroke-linejoin="round">
+    <!-- Center Main Crystal Spike -->
+    <polygon points="250,390 232,490 250,535 268,490" fill="url(#mpl-chrome-top)" />
+    <!-- Center Left Spike -->
+    <polygon points="220,385 190,475 212,505 235,445" fill="url(#mpl-chrome-shade)" />
+    <!-- Center Right Spike -->
+    <polygon points="280,385 310,475 288,505 265,445" fill="url(#mpl-chrome-shade)" />
+    <!-- Mid Left Spike -->
+    <polygon points="175,370 145,445 168,470 198,415" fill="url(#mpl-chrome-top)" />
+    <!-- Mid Right Spike -->
+    <polygon points="325,370 355,445 332,470 302,415" fill="url(#mpl-chrome-top)" />
+    <!-- Outer Left Spike -->
+    <polygon points="140,350 110,410 132,430 162,385" fill="url(#mpl-chrome-shade)" />
+    <!-- Outer Right Spike -->
+    <polygon points="360,350 390,410 368,430 338,385" fill="url(#mpl-chrome-shade)" />
+  </g>
+
+  <!-- Red Base Chevron Behind Shield -->
+  <g id="red-chevrons">
+    <polygon points="105,375 140,365 250,450 185,465" fill="url(#mpl-red-grad)" stroke="#090D16" stroke-width="1.5" />
+    <polygon points="395,375 360,365 250,450 315,465" fill="url(#mpl-red-grad)" stroke="#090D16" stroke-width="1.5" />
+  </g>
+
+  <!-- Group 3: Central Crest & Shield Armor -->
+  <g id="central-crest" filter="url(#mpl-glow-strong)">
+    <!-- Outer Thick Beveled Shield Border -->
+    <polygon points="250,140 345,175 415,225 395,335 325,395 250,440 175,395 105,335 85,225 155,175" 
+             fill="#080C14" stroke="url(#mpl-chrome-top)" stroke-width="7" stroke-linejoin="round" />
+    
+    <!-- Inner Chrome Bevel -->
+    <polygon points="250,150 335,182 400,228 382,328 318,382 250,425 182,382 118,328 100,228 165,182" 
+             fill="url(#mpl-shield-bg)" stroke="#1E293B" stroke-width="3" stroke-linejoin="round" />
+
+    <!-- Inner Glow Ring -->
+    <polygon points="250,158 328,188 388,232 370,320 310,372 250,412 190,372 130,320 112,232 172,188" 
+             fill="none" stroke="#00D4FF" stroke-width="1.5" stroke-opacity="0.35" stroke-linejoin="round" />
+  </g>
+
+  <!-- Group 4: Top MLBB Crown & Branding -->
+  <g id="mlbb-brand" transform="translate(0, -6)">
+    <!-- MLBB Double Dragon/Crown Icon -->
+    <path d="M 224,182 L 235,162 L 243,172 L 250,160 L 257,172 L 265,162 L 276,182 L 262,186 L 250,178 L 238,186 Z" 
+          fill="url(#mpl-gold-grad)" stroke="#78350F" stroke-width="1" stroke-linejoin="round" />
+    
+    <!-- Golden MOBILE LEGENDS text -->
+    <text x="250" y="202" 
+          font-family="'Impact', 'Arial Black', sans-serif" 
+          font-size="12" 
+          font-weight="900" 
+          fill="url(#mpl-gold-grad)" 
+          stroke="#000000" 
+          stroke-width="0.75"
+          text-anchor="middle" 
+          letter-spacing="1.2">
+      MOBILE LEGENDS
+    </text>
+
+    <!-- Subtitle BANG BANG in Pure White with tracking -->
+    <text x="250" y="212" 
+          font-family="'Arial Black', sans-serif" 
+          font-size="7.5" 
+          font-weight="900" 
+          fill="#FFFFFF" 
+          stroke="#000000" 
+          stroke-width="0.5"
+          text-anchor="middle" 
+          letter-spacing="2">
+      BANG BANG
+    </text>
+  </g>
+
+  <!-- Group 5: Core 3D Faceted MPL Lettering -->
+  <g id="mpl-3d-letters" filter="url(#mpl-letter-3d)">
+    
+    <!-- Letter M -->
+    <path d="M 120,315 L 120,225 L 150,225 L 176,275 L 202,225 L 232,225 L 232,315 L 204,315 L 204,260 L 176,305 L 148,260 L 148,315 Z" 
+          fill="url(#mpl-chrome-top)" stroke="#090D16" stroke-width="4" stroke-linejoin="bevel" />
+    
+    <!-- Bevel highlight on M -->
+    <path d="M 124,310 L 124,229 L 146,229 L 176,282 L 206,229 L 228,229 L 228,310 L 208,310 L 208,268 L 176,312 L 144,268 L 144,310 Z" 
+          fill="none" stroke="url(#mpl-beveled-highlight)" stroke-width="1.5" />
+
+    <!-- Letter P -->
+    <path d="M 218,315 L 218,225 L 274,225 C 298,225 308,236 308,255 C 308,274 298,285 274,285 L 246,285 L 246,315 Z M 246,245 L 246,265 L 270,265 C 279,265 284,261 284,255 C 284,249 279,245 270,245 Z" 
+          fill="url(#mpl-chrome-top)" stroke="#090D16" stroke-width="4" stroke-linejoin="bevel" />
+    
+    <!-- Bevel highlight on P -->
+    <path d="M 222,310 L 222,229 L 272,229 C 294,229 304,238 304,255 C 304,271 294,281 272,281 L 242,281 L 242,310 Z M 246,245 L 246,265 L 270,265 C 279,265 284,261 284,255 C 284,249 279,245 270,245 Z" 
+          fill="none" stroke="url(#mpl-beveled-highlight)" stroke-width="1.5" />
+
+    <!-- Letter L -->
+    <path d="M 292,225 L 322,225 L 322,290 L 368,290 L 368,315 L 292,315 Z" 
+          fill="url(#mpl-chrome-top)" stroke="#090D16" stroke-width="4" stroke-linejoin="bevel" />
+    
+    <!-- Bevel highlight on L -->
+    <path d="M 296,229 L 318,229 L 318,286 L 364,286 L 364,310 L 296,310 Z" 
+          fill="none" stroke="url(#mpl-beveled-highlight)" stroke-width="1.5" />
+  </g>
+
+  <!-- Group 6: Official Ribbon Banner: PROFESSIONAL LEAGUE INDONESIA -->
+  <g id="bottom-ribbon-banner" transform="translate(0, 8)" filter="url(#mpl-glow-strong)">
+    <!-- Outer Angular Ribbon -->
+    <polygon points="110,345 390,345 380,388 250,408 120,388" 
+             fill="#070A10" stroke="url(#mpl-chrome-top)" stroke-width="3" stroke-linejoin="round" />
+    
+    <!-- Inner Dark Base -->
+    <polygon points="116,349 384,349 374,384 250,403 126,384" 
+             fill="#0E1624" />
+
+    <!-- Red Bottom Accent Stripe -->
+    <polygon points="126,382 374,382 250,401" 
+             fill="url(#mpl-red-grad)" stroke="#000000" stroke-width="0.5" />
+
+    <!-- Tiny MLBB in bold red -->
+    <text x="250" y="360" 
+          font-family="'Impact', 'Arial Black', sans-serif" 
+          font-size="8.5" 
+          font-weight="900" 
+          fill="#EF4444" 
+          text-anchor="middle" 
+          letter-spacing="2.5">
+      MLBB
+    </text>
+
+    <!-- Main Banner Title: PROFESSIONAL LEAGUE -->
+    <text x="250" y="373" 
+          font-family="'Impact', 'Arial Black', sans-serif" 
+          font-size="10.5" 
+          font-weight="900" 
+          fill="#FFFFFF" 
+          stroke="#000000" 
+          stroke-width="0.5" 
+          text-anchor="middle" 
+          letter-spacing="1.5">
+      PROFESSIONAL LEAGUE
+    </text>
+
+    <!-- Subtitle: INDONESIA in Gold -->
+    <text x="250" y="390" 
+          font-family="'Impact', 'Arial Black', sans-serif" 
+          font-size="9.5" 
+          font-weight="900" 
+          fill="url(#mpl-gold-grad)" 
+          stroke="#000000" 
+          stroke-width="0.5" 
+          text-anchor="middle" 
+          letter-spacing="3.5">
+      INDONESIA
+    </text>
+  </g>
+</svg>

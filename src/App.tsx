@@ -1,22 +1,19 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Match, TeamStanding, PlayoffProbabilities, SimulationConfig, SimulationProgress, UserScenario, TeamId } from './types';
+import { Match, TeamStanding, PlayoffProbabilities, SimulationConfig, TeamId } from './types';
 import { INITIAL_SCHEDULE } from './data/schedule';
 import { getTeam } from './data/teams';
 import { calculateStandings } from './engine/standingsEngine';
 import { runMonteCarloSimulationAsync } from './engine/simulationEngine';
-import { evaluateWhatIfScenario } from './engine/scenarioEngine';
 import { LocalStorageService } from './storage/localStorageService';
-import { SAMPLE_RESULTS_WEEK_1_TO_4 } from './data/demoPresets';
+import { SAMPLE_MID_SEASON_RESULTS } from './data/demoPresets';
 
 import { Navbar, ActiveTab } from './components/Navbar';
 import { DashboardPage } from './pages/DashboardPage';
 import { MatchesPage } from './pages/MatchesPage';
 import { PlayoffRacePage } from './pages/PlayoffRacePage';
-import { WhatIfPanel } from './components/WhatIfPanel';
 import { TeamDetailModal } from './components/TeamDetailModal';
 import { BackupModal } from './components/BackupModal';
-import { ValidationModal } from './components/ValidationModal';
-import { CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 
 interface ToastState {
   id: string;
@@ -46,17 +43,9 @@ export default function App() {
     });
   });
 
-  // State: What-If Scenario Overrides & Presets
-  const [scenarioOverrides, setScenarioOverrides] = useState<Record<string, [number, number]>>(() => {
-    return LocalStorageService.loadScenarioOverrides();
-  });
-  const [savedScenarios, setSavedScenarios] = useState<UserScenario[]>(() => {
-    return LocalStorageService.loadSavedScenarios();
-  });
-
   // Simulation State
   const [simConfig] = useState<SimulationConfig>({
-    iterations: 30000,
+    iterations: 25000,
     modelType: 'dynamic_strength'
   });
   const [probabilities, setProbabilities] = useState<PlayoffProbabilities[]>([]);
@@ -64,35 +53,29 @@ export default function App() {
   // Modals
   const [selectedTeamId, setSelectedTeamId] = useState<TeamId | null>(null);
   const [isBackupOpen, setIsBackupOpen] = useState<boolean>(false);
-  const [isValidationOpen, setIsValidationOpen] = useState<boolean>(false);
 
   // Calculate Real Standings
   const realStandings = useMemo(() => {
     return calculateStandings(matches);
   }, [matches]);
 
-  // Calculate What-If Evaluation
-  const { simulatedStandings, comparison } = useMemo(() => {
-    return evaluateWhatIfScenario(matches, scenarioOverrides);
-  }, [matches, scenarioOverrides]);
-
   // Execute Monte Carlo Simulation
-  const triggerSimulation = useCallback((configToUse = simConfig, matchesToUse = matches, overrides = scenarioOverrides) => {
+  const triggerSimulation = useCallback((configToUse = simConfig, matchesToUse = matches) => {
     runMonteCarloSimulationAsync(
       matchesToUse,
-      overrides,
+      {},
       configToUse,
       () => {},
       (results) => {
         setProbabilities(results);
       }
     );
-  }, [simConfig, matches, scenarioOverrides]);
+  }, [simConfig, matches]);
 
-  // Initial simulation on mount and when matches/overrides change
+  // Initial simulation on mount and when matches change
   useEffect(() => {
-    triggerSimulation(simConfig, matches, scenarioOverrides);
-  }, [matches, scenarioOverrides]);
+    triggerSimulation(simConfig, matches);
+  }, [matches]);
 
   // Show Toast Feedback
   const showToast = (title: string, subtitle: string, type: 'success' | 'info' = 'success') => {
@@ -153,70 +136,25 @@ export default function App() {
     );
   };
 
-  // Scenario Handlers
-  const handleSetScenarioScore = (matchId: string, homeScore: number, awayScore: number) => {
-    const updated = { ...scenarioOverrides, [matchId]: [homeScore, awayScore] as [number, number] };
-    setScenarioOverrides(updated);
-    LocalStorageService.saveScenarioOverrides(updated);
-  };
-
-  const handleClearScenarioScore = (matchId: string) => {
-    const updated = { ...scenarioOverrides };
-    delete updated[matchId];
-    setScenarioOverrides(updated);
-    LocalStorageService.saveScenarioOverrides(updated);
-  };
-
-  const handleResetAllOverrides = () => {
-    setScenarioOverrides({});
-    LocalStorageService.saveScenarioOverrides({});
-    showToast('Skenario Direset', 'Semua pilihan what-if dikembalikan ke normal', 'info');
-  };
-
-  const handleSaveScenario = (name: string) => {
-    const newScen: UserScenario = {
-      id: `scen-${Date.now()}`,
-      name,
-      updatedAt: new Date().toISOString(),
-      overrides: { ...scenarioOverrides }
-    };
-    LocalStorageService.saveUserScenario(newScen);
-    setSavedScenarios(LocalStorageService.loadSavedScenarios());
-    showToast('Skenario Disimpan', name);
-  };
-
-  const handleLoadScenario = (scen: UserScenario) => {
-    setScenarioOverrides(scen.overrides);
-    LocalStorageService.saveScenarioOverrides(scen.overrides);
-    showToast('Skenario Dimuat', scen.name);
-  };
-
-  const handleDeleteScenario = (id: string) => {
-    LocalStorageService.deleteUserScenario(id);
-    setSavedScenarios(LocalStorageService.loadSavedScenarios());
-  };
-
   // Sample and Reset handlers
   const handleLoadSample = () => {
-    SAMPLE_RESULTS_WEEK_1_TO_4.forEach((res) => {
-      LocalStorageService.saveMatchResult(res.matchId, res.homeScore, res.awayScore);
+    Object.entries(SAMPLE_MID_SEASON_RESULTS).forEach(([matchId, res]) => {
+      LocalStorageService.saveMatchResult(matchId, res.homeScore, res.awayScore);
     });
     setMatches(INITIAL_SCHEDULE.map((m) => {
-      const matchResult = SAMPLE_RESULTS_WEEK_1_TO_4.find((r) => r.matchId === m.id);
+      const matchResult = SAMPLE_MID_SEASON_RESULTS[m.id];
       if (matchResult) {
         return { ...m, homeScore: matchResult.homeScore, awayScore: matchResult.awayScore, status: 'completed' as const };
       }
       return m;
     }));
-    showToast('Contoh Data Dimuat', 'Hasil simulasi pekan 1-4 berhasil dimasukkan');
+    showToast('Template Dimuat', 'Hasil realistis Pekan 1–3 berhasil diterapkan ke LocalStorage');
   };
 
   const handleResetAll = () => {
     LocalStorageService.clearAllData();
     setMatches(INITIAL_SCHEDULE.map((m) => ({ ...m, homeScore: null, awayScore: null, status: 'scheduled' as const })));
-    setScenarioOverrides({});
-    setSavedScenarios([]);
-    showToast('Data Direset', 'Semua hasil manual telah dihapus', 'info');
+    showToast('Data Direset', 'Semua hasil telah dikembalikan ke kondisi awal (0 Pertandingan Selesai)', 'info');
   };
 
   const completedCount = matches.filter(
@@ -239,7 +177,7 @@ export default function App() {
             </div>
             <button
               onClick={() => setToast(null)}
-              className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white"
+              className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -253,9 +191,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         completedMatchesCount={completedCount}
         totalMatches={72}
-        scenarioOverridesCount={Object.keys(scenarioOverrides).length}
         onOpenBackup={() => setIsBackupOpen(true)}
-        onOpenValidator={() => setIsValidationOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -294,47 +230,29 @@ export default function App() {
           />
         )}
 
-        {/* Tab 4: What-If Mode (Simulation Sandbox) */}
-        {activeTab === 'whatif' && (
-          <WhatIfPanel
-            allMatches={matches}
-            realStandings={realStandings}
-            simulatedStandings={simulatedStandings}
-            comparison={comparison}
-            scenarioOverrides={scenarioOverrides}
-            onSetScenarioScore={handleSetScenarioScore}
-            onClearScenarioScore={handleClearScenarioScore}
-            onResetAllOverrides={handleResetAllOverrides}
-            onSaveScenario={handleSaveScenario}
-            savedScenarios={savedScenarios}
-            onLoadScenario={handleLoadScenario}
-            onDeleteScenario={handleDeleteScenario}
-            onSelectTeam={(tId) => setSelectedTeamId(tId)}
-          />
-        )}
-
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-[#08090D] py-6 px-4 text-center text-xs text-slate-500 mb-14 md:mb-0">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">MPL ID S18 Playoff Predictor</span>
-            <span>•</span>
-            <span>Regular Season 9 Weeks (72 BO3)</span>
+      {/* Footer: Hak Cipta & Karya Moh. Fadhailurrahman */}
+      <footer className="border-t border-slate-800/80 bg-[#0A0C12] py-6 px-4 text-xs text-slate-400 mb-14 md:mb-0">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <span className="font-extrabold text-slate-200">MPL ID S18 Playoff Predictor</span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-400">Regular Season 9 Weeks (72 BO3)</span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-400">9 Teams</span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-emerald-400 font-semibold">Top 6 Qualify</span>
           </div>
-          <div className="flex items-center gap-3 text-slate-400">
-            <span>9 Teams</span>
-            <span>•</span>
-            <span>Top 6 Qualify</span>
-            <span>•</span>
-            <button
-              onClick={() => setIsValidationOpen(true)}
-              className="text-[#00D4FF] hover:underline font-semibold"
-            >
-              Diagnostic Tests
-            </button>
+
+          <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60 w-full sm:w-auto justify-center">
+            <span className="text-slate-400 font-medium">Karya:</span>
+            <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#7C5CFF]/15 to-[#00D4FF]/15 border border-[#7C5CFF]/30 font-bold text-slate-200">
+              Moh. Fadhailurrahman
+            </span>
           </div>
+
         </div>
       </footer>
 
@@ -362,20 +280,13 @@ export default function App() {
             }
             return m;
           }));
-          setScenarioOverrides(LocalStorageService.loadScenarioOverrides());
-          setSavedScenarios(LocalStorageService.loadSavedScenarios());
         }}
         onLoadSample={handleLoadSample}
         onResetAll={handleResetAll}
         completedCount={completedCount}
       />
 
-      {/* Diagnostic Validation Modal */}
-      <ValidationModal
-        isOpen={isValidationOpen}
-        onClose={() => setIsValidationOpen(false)}
-      />
-
     </div>
   );
 }
+

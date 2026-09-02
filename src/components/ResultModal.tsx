@@ -27,24 +27,20 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   onSaveResult,
   onDeleteResult
 }) => {
-  if (!isOpen || !match) return null;
-
-  const homeTeam = getTeam(match.homeTeam);
-  const awayTeam = getTeam(match.awayTeam);
-
-  const initialSelected = match.homeScore !== null && match.awayScore !== null
-    ? `${match.homeScore}-${match.awayScore}`
-    : '2-0';
-
-  const [selectedScore, setSelectedScore] = useState<string>(initialSelected);
+  const [selectedScore, setSelectedScore] = useState<string>('2-0');
 
   useEffect(() => {
-    if (match.homeScore !== null && match.awayScore !== null) {
+    if (match && match.homeScore !== null && match.awayScore !== null) {
       setSelectedScore(`${match.homeScore}-${match.awayScore}`);
     } else {
       setSelectedScore('2-0');
     }
   }, [match]);
+
+  if (!isOpen || !match) return null;
+
+  const homeTeam = getTeam(match.homeTeam);
+  const awayTeam = getTeam(match.awayTeam);
 
   const options: BO3Option[] = [
     {
