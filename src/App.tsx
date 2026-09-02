@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Match, TeamStanding, PlayoffProbabilities, SimulationConfig, TeamId } from './types';
+import { Match, TeamStanding, PlayoffProbabilities, SimulationConfig, SimulationProgress, TeamId } from './types';
 import { INITIAL_SCHEDULE } from './data/schedule';
 import { getTeam } from './data/teams';
 import { calculateStandings } from './engine/standingsEngine';
@@ -44,11 +44,16 @@ export default function App() {
   });
 
   // Simulation State
-  const [simConfig] = useState<SimulationConfig>({
+  const [simConfig, setSimConfig] = useState<SimulationConfig>({
     iterations: 25000,
-    modelType: 'dynamic_strength'
+    modelType: 'dynamic_strength',
+    homeAdvantage: 0,
+    variance: 0.15
   });
   const [probabilities, setProbabilities] = useState<PlayoffProbabilities[]>([]);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simProgress, setSimProgress] = useState<SimulationProgress | null>(null);
+  const [lastRunStats, setLastRunStats] = useState<{ iterations: number; timeTakenMs: number } | null>(null);
 
   // Modals
   const [selectedTeamId, setSelectedTeamId] = useState<TeamId | null>(null);
@@ -59,22 +64,32 @@ export default function App() {
     return calculateStandings(matches);
   }, [matches]);
 
-  // Execute Monte Carlo Simulation
-  const triggerSimulation = useCallback((configToUse = simConfig, matchesToUse = matches) => {
+  // Execute Monte Carlo Simulation with full progress tracking
+  const handleRunSimulation = useCallback((configToUse = simConfig, matchesToUse = matches) => {
+    setIsSimulating(true);
+    setSimProgress({ current: 0, total: configToUse.iterations, percentage: 0, isRunning: true });
+
     runMonteCarloSimulationAsync(
       matchesToUse,
       {},
       configToUse,
-      () => {},
-      (results) => {
+      (progress) => {
+        setSimProgress(progress);
+      },
+      (results, stats) => {
         setProbabilities(results);
+        setIsSimulating(false);
+        setSimProgress(null);
+        if (stats) {
+          setLastRunStats(stats);
+        }
       }
     );
   }, [simConfig, matches]);
 
   // Initial simulation on mount and when matches change
   useEffect(() => {
-    triggerSimulation(simConfig, matches);
+    handleRunSimulation(simConfig, matches);
   }, [matches]);
 
   // Show Toast Feedback
@@ -226,7 +241,14 @@ export default function App() {
           <PlayoffRacePage
             standings={realStandings}
             probabilities={probabilities}
+            allMatches={matches}
             onSelectTeam={(tId) => setSelectedTeamId(tId)}
+            onRunSimulation={(customCfg) => handleRunSimulation(customCfg || simConfig)}
+            isSimulating={isSimulating}
+            simConfig={simConfig}
+            onUpdateSimConfig={(newCfg) => setSimConfig(newCfg)}
+            lastRunStats={lastRunStats}
+            simProgress={simProgress}
           />
         )}
 

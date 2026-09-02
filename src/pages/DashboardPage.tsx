@@ -125,110 +125,79 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4 mb-5">
           <div>
             <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#7C5CFF]" />
+              <Zap className="w-4 h-4 text-[#00D4FF]" />
               <span>Peluang Playoff (Estimated Playoff Chance)</span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               {completedCount > 0
-                ? `Berdasarkan ${completedCount} pertandingan selesai dan sisa ${72 - completedCount} laga Regular Season.`
-                : 'Musim belum dimulai (0 laga selesai). Input hasil manual atau muat template untuk menghitung peluang.'}
+                ? `Dihitung otomatis berdasarkan ${completedCount} laga selesai, selisih game, dan jadwal sisa Regular Season.`
+                : 'Dihitung otomatis berdasarkan format BO3 dan sisa 72 laga Regular Season.'}
             </p>
           </div>
-          {completedCount > 0 && (
-            <button
-              onClick={() => setActiveTab('playoff')}
-              className="text-xs font-bold text-[#00D4FF] hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <span>Lihat Peta Persaingan Playoff</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('playoff')}
+            className="text-xs font-bold text-[#00D4FF] hover:underline flex items-center gap-1 cursor-pointer bg-[#7C5CFF]/10 hover:bg-[#7C5CFF]/20 px-3 py-1.5 rounded-lg border border-[#7C5CFF]/30 transition-all"
+          >
+            <span>Buka Analisis Persaingan Playoff</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* If 0 matches completed: display clean neutral state */}
-        {completedCount === 0 ? (
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-[#141720] border border-slate-800 text-center space-y-2">
-              <p className="text-xs text-slate-400">
-                Peluang playoff berstatus <span className="text-slate-200 font-bold">Netral / Belum Dihitung</span> karena belum ada pertandingan yang selesai.
-              </p>
-            </div>
+        {/* Probability Bars */}
+        <div className="space-y-3.5">
+          {sortedProbabilities.map((prob) => {
+            const chance = prob.playoffChance;
+            const upper = prob.upperBracketChance;
+            const elim = prob.eliminationChance;
+            const meta = getPlayoffStatusMeta(chance);
 
-            <div className="space-y-2.5">
-              {standings.map((st) => (
-                <div
-                  key={st.teamId}
-                  onClick={() => onSelectTeam(st.teamId)}
-                  className="bg-[#181B24] hover:bg-slate-800/60 p-3 sm:p-3.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer group flex items-center justify-between gap-3"
-                >
+            return (
+              <div
+                key={prob.teamId}
+                onClick={() => onSelectTeam(prob.teamId)}
+                className="bg-[#181B24] hover:bg-slate-800/80 p-3.5 sm:p-4 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-all cursor-pointer group"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <TeamLogo teamId={st.teamId} size="sm" />
+                    <TeamLogo teamId={prob.teamId} size="sm" />
                     <span className="font-bold text-sm text-slate-100 group-hover:text-[#00D4FF] transition-colors truncate">
-                      {st.team.shortName}
+                      {prob.team.shortName}
                     </span>
-                    <span className="text-xs text-slate-500 font-medium truncate hidden sm:inline uppercase">
-                      — {st.team.name}
+                    <span className="text-xs text-slate-400 font-medium truncate hidden sm:inline uppercase">
+                      — {prob.team.name}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-slate-700 bg-slate-800 text-slate-400">
-                      Belum Ada Data
-                    </span>
-                    <span className="font-mono font-bold text-xs text-slate-500 min-w-[50px] text-right">
-                      - %
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* Probability Bars when data exists */
-          <div className="space-y-3.5">
-            {sortedProbabilities.map((prob) => {
-              const chance = prob.playoffChance;
-              const meta = getPlayoffStatusMeta(chance);
-
-              return (
-                <div
-                  key={prob.teamId}
-                  onClick={() => onSelectTeam(prob.teamId)}
-                  className="bg-[#181B24] hover:bg-slate-800/60 p-3 sm:p-4 rounded-xl border border-slate-800/80 transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <TeamLogo teamId={prob.teamId} size="sm" />
-                      <span className="font-bold text-sm text-slate-100 group-hover:text-[#00D4FF] transition-colors truncate">
-                        {prob.team.shortName}
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono">
+                      <span className="text-emerald-400/90 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                        Upper: {upper.toFixed(1)}%
                       </span>
-                      <span className="text-xs text-slate-400 font-bold truncate hidden sm:inline uppercase">
-                        — {prob.team.name}
+                      <span className="text-red-400/90 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                        Gugur: {elim.toFixed(1)}%
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${meta.badgeBg} ${meta.color}`}>
-                        {meta.label}
-                      </span>
-                      <span className={`font-mono font-black text-sm sm:text-base ${meta.color} min-w-[64px] text-right`}>
-                        {chance.toFixed(2)}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-[1px] border border-slate-800">
-                    <div
-                      className={`h-full rounded-full bg-gradient-to-r ${meta.barBg} transition-all duration-500`}
-                      style={{ width: `${Math.max(chance, 1.5)}%` }}
-                    />
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${meta.badgeBg} ${meta.color}`}>
+                      {meta.label}
+                    </span>
+                    <span className={`font-mono font-black text-sm sm:text-base ${meta.color} min-w-[64px] text-right`}>
+                      {chance.toFixed(2)}%
+                    </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                {/* Progress Bar */}
+                <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-[1px] border border-slate-800">
+                  <div
+                    className={`h-full rounded-full bg-gradient-to-r ${meta.barBg} transition-all duration-500`}
+                    style={{ width: `${Math.max(chance, 1.5)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* 4. Next Match Section */}

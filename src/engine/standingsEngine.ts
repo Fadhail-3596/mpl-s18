@@ -1,26 +1,32 @@
 import { Match, TeamId, TeamStanding, QualificationStatus } from '../types';
-import { TEAMS, TEAMS_LIST, getTeam } from '../data/teams';
+import { TEAMS_LIST, getTeam } from '../data/teams';
 import { buildH2HMatrix } from './h2hEngine';
+import { compareTeamsForOfficialRanking } from './rankingEngine';
 import { MPL_ID_S18_RULES } from '../data/rules';
 
 export function calculateStandings(
   matches: Match[],
-  qualificationOverrides?: Record<TeamId, { status: QualificationStatus; bestPossibleRank?: number; worstPossibleRank?: number; best?: number; worst?: number }>
+  qualificationOverrides?: Record<
+    TeamId,
+    { status: QualificationStatus; bestPossibleRank?: number; worstPossibleRank?: number; best?: number; worst?: number }
+  >
 ): TeamStanding[] {
   const h2hMatrix = buildH2HMatrix(matches);
 
-  // Initialize stats for each team
-  const statsMap: Record<TeamId, {
-    teamId: TeamId;
-    matchesPlayed: number;
-    matchWins: number;
-    matchLosses: number;
-    gamesWon: number;
-    gamesLost: number;
-    form: ('W' | 'L')[];
-    recentMatchDates: { date: string; time: string; result: 'W' | 'L' }[];
-    headToHeadRecords: Record<string, { wins: number; losses: number; gamesWon: number; gamesLost: number }>;
-  }> = {} as any;
+  // Initialize stats map for each team
+  const statsMap: Record<
+    TeamId,
+    {
+      teamId: TeamId;
+      matchesPlayed: number;
+      matchWins: number;
+      matchLosses: number;
+      gamesWon: number;
+      gamesLost: number;
+      form: ('W' | 'L')[];
+      headToHeadRecords: Record<string, { wins: number; losses: number; gamesWon: number; gamesLost: number }>;
+    }
+  > = {} as any;
 
   TEAMS_LIST.forEach((team) => {
     statsMap[team.id] = {
@@ -31,7 +37,6 @@ export function calculateStandings(
       gamesWon: 0,
       gamesLost: 0,
       form: [],
-      recentMatchDates: [],
       headToHeadRecords: {}
     };
   });
@@ -64,15 +69,11 @@ export function calculateStandings(
         awayStats.matchLosses += 1;
         homeStats.form.push('W');
         awayStats.form.push('L');
-        homeStats.recentMatchDates.push({ date: m.date, time: m.time, result: 'W' });
-        awayStats.recentMatchDates.push({ date: m.date, time: m.time, result: 'L' });
       } else {
         homeStats.matchLosses += 1;
         awayStats.matchWins += 1;
         homeStats.form.push('L');
         awayStats.form.push('W');
-        homeStats.recentMatchDates.push({ date: m.date, time: m.time, result: 'L' });
-        awayStats.recentMatchDates.push({ date: m.date, time: m.time, result: 'W' });
       }
     }
   });
@@ -93,7 +94,7 @@ export function calculateStandings(
   });
 
   // Convert to intermediate list
-  const standingsList = Object.values(statsMap).map((st) => {
+  const standingsList: TeamStanding[] = Object.values(statsMap).map((st) => {
     const gameDiff = st.gamesWon - st.gamesLost;
     const matchWinRate = st.matchesPlayed > 0 ? st.matchWins / st.matchesPlayed : 0;
     const totalGames = st.gamesWon + st.gamesLost;
@@ -113,9 +114,11 @@ export function calculateStandings(
       }
     }
 
+    const team = getTeam(st.teamId);
+
     return {
       teamId: st.teamId,
-      team: getTeam(st.teamId),
+      team,
       matchesPlayed: st.matchesPlayed,
       matchesRemaining: MPL_ID_S18_RULES.regularSeasonMatchesPerTeam - st.matchesPlayed,
       matchWins: st.matchWins,
@@ -126,7 +129,7 @@ export function calculateStandings(
       gameDifference: gameDiff,
       gameWinRate,
       headToHeadRecords: st.headToHeadRecords,
-      form: st.form.slice(-5), // Last 5
+      form: st.form.slice(-5), // Last 5 matches
       streak: { type: streakType, count: streakCount },
       rank: 1, // Will be set after sort
       qualificationStatus: (qualificationOverrides?.[st.teamId]?.status || 'ALIVE') as QualificationStatus,
@@ -135,32 +138,30 @@ export function calculateStandings(
     };
   });
 
-  // Sort standings with multi-level tiebreaker logic
-  standingsList.sort((a, b) => {
-    // 1. Match Wins (Desc)
-    if (a.matchWins !== b.matchWins) {
-      return b.matchWins - a.matchWins;
-    }
-
-    // 2. Game Difference (Desc)
-    if (a.gameDifference !== b.gameDifference) {
-      return b.gameDifference - a.gameDifference;
-    }
-
-    // 3. Head-to-Head
-    const h2hCompare = h2hMatrix.compareTeams(a.teamId, b.teamId);
-    if (h2hCompare !== 0) {
-      return -h2hCompare; // If A beats B in H2H, h2hCompare > 0 => returns negative (A precedes B)
-    }
-
-    // 4. Games Won (Desc)
-    if (a.gamesWon !== b.gamesWon) {
-      return b.gamesWon - a.gamesWon;
-    }
-
-    // 5. Alphabetical fallback
-    return a.team.name.localeCompare(b.team.name);
-  });
+  // Sort standings with official ranking tiebreaker hierarchy
+  standingsList.sort((a, b) =>
+    compareTeamsForOfficialRanking(
+      {
+        teamId: a.teamId,
+        teamName: a.team.name,
+        matchWins: a.matchWins,
+        matchLosses: a.matchLosses,
+        gamesWon: a.gamesWon,
+        gamesLost: a.gamesLost,
+        gameDifference: a.gameDifference
+      },
+      {
+        teamId: b.teamId,
+        teamName: b.team.name,
+        matchWins: b.matchWins,
+        matchLosses: b.matchLosses,
+        gamesWon: b.gamesWon,
+        gamesLost: b.gamesLost,
+        gameDifference: b.gameDifference
+      },
+      h2hMatrix
+    )
+  );
 
   // Assign 1-indexed ranks
   standingsList.forEach((item, index) => {

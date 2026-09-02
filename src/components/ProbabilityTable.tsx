@@ -1,63 +1,126 @@
 import React, { useState } from 'react';
-import { PlayoffProbabilities, TeamId } from '../types';
+import { PlayoffProbabilities, TeamId, TeamStanding } from '../types';
 import { TeamLogo } from './TeamLogo';
-import { Sparkles, Grid, BarChart3, HelpCircle } from 'lucide-react';
+import { Sparkles, Grid, BarChart3, HelpCircle, ShieldCheck, ShieldAlert, Award } from 'lucide-react';
+import { analyzeQualifications } from '../engine/qualificationEngine';
 
 interface ProbabilityTableProps {
   probabilities: PlayoffProbabilities[];
+  standings: TeamStanding[];
+  allMatches?: any[];
   onSelectTeam: (teamId: TeamId) => void;
-  iterations: number;
+  iterations?: number;
 }
 
 export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
   probabilities,
+  standings,
+  allMatches = [],
   onSelectTeam,
-  iterations
+  iterations = 100000
 }) => {
   const [viewMode, setViewMode] = useState<'summary' | 'matrix'>('summary');
+  const qualificationMap = analyzeQualifications(allMatches);
+
+  // Helper for simple status labels
+  const getStatusBadge = (prob: PlayoffProbabilities, qual?: any) => {
+    if (qual?.isEliminated) {
+      return {
+        label: 'Tereliminasi',
+        color: 'text-slate-400',
+        bg: 'bg-slate-800 border-slate-700',
+        dot: 'bg-slate-500'
+      };
+    }
+    if (qual?.clinchedUpperBracket) {
+      return {
+        label: 'Upper Bracket (Terkunci)',
+        color: 'text-emerald-400',
+        bg: 'bg-emerald-500/15 border-emerald-500/30',
+        dot: 'bg-emerald-400'
+      };
+    }
+    if (qual?.clinchedPlayoff) {
+      return {
+        label: 'Lolos Playoff (Terkunci)',
+        color: 'text-emerald-400',
+        bg: 'bg-emerald-500/15 border-emerald-500/30',
+        dot: 'bg-emerald-400'
+      };
+    }
+
+    const chance = prob.playoffChance;
+    if (chance >= 75) {
+      return {
+        label: 'Strong Position',
+        color: 'text-emerald-400',
+        bg: 'bg-emerald-500/15 border-emerald-500/30',
+        dot: 'bg-emerald-400'
+      };
+    }
+    if (chance >= 35) {
+      return {
+        label: 'Contested',
+        color: 'text-amber-400',
+        bg: 'bg-amber-500/15 border-amber-500/30',
+        dot: 'bg-amber-400'
+      };
+    }
+    if (chance >= 10) {
+      return {
+        label: 'Danger',
+        color: 'text-orange-400',
+        bg: 'bg-orange-500/15 border-orange-500/30',
+        dot: 'bg-orange-400'
+      };
+    }
+    return {
+      label: 'Almost Eliminated',
+      color: 'text-red-400',
+      bg: 'bg-red-500/15 border-red-500/30',
+      dot: 'bg-red-500'
+    };
+  };
 
   return (
-    <div className="bg-[#0e1424] border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-[#11131A] border border-slate-800/90 rounded-2xl overflow-hidden shadow-xl">
       {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-900 via-[#0e1424] to-slate-900">
+      <div className="p-4 sm:p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-[#181B24]">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Playoff Probability Engine</span>
+            <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#00D4FF]" />
+              <span>Tabel Peluang Playoff & Kualifikasi</span>
             </h2>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
-              {iterations.toLocaleString()} Runs
-            </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Monte Carlo simulated distributions across all remaining regular season matches.
+          <p className="text-xs text-slate-400 mt-1">
+            Peluang dihitung berdasarkan 100.000 simulasi sisa pertandingan Regular Season MPL ID.
           </p>
         </div>
 
         {/* View Switcher */}
-        <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center bg-[#11131A] p-1 rounded-xl border border-slate-800">
           <button
             onClick={() => setViewMode('summary')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               viewMode === 'summary'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                ? 'bg-[#00D4FF]/20 text-[#00D4FF] border border-[#00D4FF]/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>Summary</span>
+            <span>Ringkasan Odds</span>
           </button>
           <button
             onClick={() => setViewMode('matrix')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               viewMode === 'matrix'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                ? 'bg-[#7C5CFF]/25 text-[#00D4FF] border border-[#7C5CFF]/50 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <Grid className="w-3.5 h-3.5" />
-            <span>#1-#9 Matrix</span>
+            <span>Distribusi Posisi (#1-#9)</span>
           </button>
         </div>
       </div>
@@ -67,12 +130,13 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
         {viewMode === 'summary' ? (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-900/90 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                <th className="py-3 px-4">Team</th>
+              <tr className="bg-[#141722] text-[11px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <th className="py-3 px-4">Tim</th>
                 <th className="py-3 px-4 text-center">Playoff Chance (Top 6)</th>
                 <th className="py-3 px-4 text-center text-emerald-400">Upper Bracket (#1-#2)</th>
-                <th className="py-3 px-4 text-center text-blue-400">Play-in (#3-#6)</th>
-                <th className="py-3 px-4 text-center text-rose-400">Eliminated (#7-#9)</th>
+                <th className="py-3 px-4 text-center text-sky-400">Play-in (#3-#6)</th>
+                <th className="py-3 px-4 text-center text-red-400">Elimination (#7-#9)</th>
+                <th className="py-3 px-4 text-center">Status Kompetisi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-xs sm:text-sm">
@@ -81,6 +145,8 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
                 const upperPct = item.upperBracketChance;
                 const playInPct = item.playInChance;
                 const elimPct = item.eliminationChance;
+                const qAnalysis = qualificationMap[item.teamId];
+                const statusMeta = getStatusBadge(item, qAnalysis);
 
                 return (
                   <tr
@@ -93,10 +159,10 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
                       <div className="flex items-center gap-3">
                         <TeamLogo teamId={item.teamId} size="md" />
                         <div>
-                          <div className="font-bold text-slate-100 group-hover:text-amber-400 transition-colors">
+                          <div className="font-bold text-slate-100 group-hover:text-[#00D4FF] transition-colors">
                             {item.team.shortName}
                           </div>
-                          <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
+                          <div className="text-[11px] text-slate-400 font-medium uppercase tracking-wider truncate max-w-[120px] sm:max-w-none">
                             {item.team.name}
                           </div>
                         </div>
@@ -106,39 +172,47 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
                     {/* Playoff Chance Bar + % */}
                     <td className="py-3.5 px-4 text-center">
                       <div className="flex items-center gap-3 justify-center max-w-xs mx-auto">
-                        <div className="w-24 sm:w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden shrink-0">
+                        <div className="w-20 sm:w-28 h-2.5 bg-slate-900 rounded-full overflow-hidden shrink-0 border border-slate-800">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
-                              playoffPct >= 90
+                              playoffPct >= 75
                                 ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                                : playoffPct >= 50
-                                ? 'bg-gradient-to-r from-blue-500 to-cyan-400'
-                                : playoffPct >= 20
+                                : playoffPct >= 35
                                 ? 'bg-gradient-to-r from-amber-500 to-yellow-400'
-                                : 'bg-gradient-to-r from-rose-500 to-orange-400'
+                                : playoffPct >= 10
+                                ? 'bg-gradient-to-r from-orange-500 to-amber-500'
+                                : 'bg-gradient-to-r from-rose-600 to-red-500'
                             }`}
-                            style={{ width: `${playoffPct}%` }}
+                            style={{ width: `${Math.max(playoffPct, 2)}%` }}
                           />
                         </div>
-                        <span className="font-mono font-bold text-sm text-slate-100 w-16 text-right">
-                          {playoffPct.toFixed(2)}%
+                        <span className="font-mono font-black text-sm text-white w-16 text-right">
+                          {playoffPct.toFixed(1)}%
                         </span>
                       </div>
                     </td>
 
                     {/* Upper Bracket % */}
-                    <td className="py-3.5 px-4 text-center font-mono font-semibold text-emerald-400">
-                      {upperPct > 0 ? `${upperPct.toFixed(2)}%` : '<0.01%'}
+                    <td className="py-3.5 px-4 text-center font-mono font-bold text-emerald-400">
+                      {upperPct.toFixed(1)}%
                     </td>
 
                     {/* Play-in % */}
-                    <td className="py-3.5 px-4 text-center font-mono font-semibold text-blue-400">
-                      {playInPct > 0 ? `${playInPct.toFixed(2)}%` : '<0.01%'}
+                    <td className="py-3.5 px-4 text-center font-mono font-bold text-sky-400">
+                      {playInPct.toFixed(1)}%
                     </td>
 
                     {/* Eliminated % */}
-                    <td className="py-3.5 px-4 text-center font-mono font-semibold text-rose-400">
-                      {elimPct > 0 ? `${elimPct.toFixed(2)}%` : '<0.01%'}
+                    <td className="py-3.5 px-4 text-center font-mono font-bold text-red-400">
+                      {elimPct.toFixed(1)}%
+                    </td>
+
+                    {/* Status Badge */}
+                    <td className="py-3.5 px-4 text-center">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusMeta.bg} ${statusMeta.color}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
+                        <span>{statusMeta.label}</span>
+                      </span>
                     </td>
                   </tr>
                 );
@@ -149,19 +223,19 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
           /* Matrix View: P(#1) to P(#9) */
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-900/90 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                <th className="py-3 px-3">Team</th>
+              <tr className="bg-[#141722] text-[11px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <th className="py-3 px-3">Tim</th>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((pos) => (
                   <th
                     key={pos}
-                    className={`py-3 px-2 text-center ${
-                      pos <= 2 ? 'text-emerald-400' : pos <= 6 ? 'text-blue-400' : 'text-rose-400'
+                    className={`py-3 px-2 text-center font-black ${
+                      pos <= 2 ? 'text-emerald-400' : pos <= 6 ? 'text-sky-400' : 'text-red-400'
                     }`}
                   >
                     #{pos}
                   </th>
                 ))}
-                <th className="py-3 px-3 text-center text-amber-400">Playoff %</th>
+                <th className="py-3 px-3 text-center text-[#00D4FF]">Playoff %</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-xs">
@@ -177,38 +251,37 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
                   </td>
 
                   {item.positionProbabilities.map((prob, idx) => {
-                    // Heatmap alpha based on prob
                     const intensity = Math.min(1, prob / 40);
                     let bgStyle = 'transparent';
-                    let textStyle = 'text-slate-500';
+                    let textStyle = 'text-slate-600';
 
                     if (prob > 0.005) {
                       if (idx < 2) {
-                        bgStyle = `rgba(16, 185, 129, ${0.15 + intensity * 0.35})`;
+                        bgStyle = `rgba(16, 185, 129, ${0.15 + intensity * 0.4})`;
                         textStyle = 'text-emerald-300 font-bold';
                       } else if (idx < 6) {
-                        bgStyle = `rgba(59, 130, 246, ${0.15 + intensity * 0.35})`;
-                        textStyle = 'text-blue-300 font-bold';
+                        bgStyle = `rgba(14, 165, 233, ${0.15 + intensity * 0.4})`;
+                        textStyle = 'text-sky-300 font-bold';
                       } else {
-                        bgStyle = `rgba(239, 68, 68, ${0.15 + intensity * 0.35})`;
-                        textStyle = 'text-rose-300 font-bold';
+                        bgStyle = `rgba(239, 68, 68, ${0.15 + intensity * 0.4})`;
+                        textStyle = 'text-red-300 font-bold';
                       }
                     }
 
                     return (
-                      <td key={idx} className="py-2.5 px-1.5 text-center font-mono">
+                      <td key={idx} className="py-2.5 px-1 text-center font-mono">
                         <div
                           className={`py-1 px-1 rounded transition-all text-[11px] ${textStyle}`}
                           style={{ backgroundColor: bgStyle }}
                         >
-                          {prob > 0 ? `${prob.toFixed(2)}%` : '-'}
+                          {prob > 0 ? `${prob.toFixed(1)}%` : '-'}
                         </div>
                       </td>
                     );
                   })}
 
-                  <td className="py-3 px-3 text-center font-mono font-bold text-amber-400 text-sm">
-                    {item.playoffChance.toFixed(2)}%
+                  <td className="py-3 px-3 text-center font-mono font-black text-[#00D4FF] text-sm">
+                    {item.playoffChance.toFixed(1)}%
                   </td>
                 </tr>
               ))}
@@ -218,13 +291,13 @@ export const ProbabilityTable: React.FC<ProbabilityTableProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+      <div className="p-3.5 bg-[#141722] border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-1.5">
-          <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-          Probabilities derived from Monte Carlo simulations using deterministic team strength + dynamic season form.
+          <HelpCircle className="w-3.5 h-3.5 text-[#00D4FF]" />
+          <span>Peluang adalah estimasi berdasarkan 100.000 simulasi seluruh sisa pertandingan MPL ID S18.</span>
         </span>
-        <span className="text-slate-500">
-          Sum Axiom: Playoff + Eliminated = 100%
+        <span className="text-slate-400 font-mono">
+          Top 2: Upper Bracket • Top 6: Playoff • 7-9: Gugur
         </span>
       </div>
     </div>

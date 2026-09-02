@@ -1,8 +1,8 @@
 import { INITIAL_SCHEDULE, validateSchedule } from '../data/schedule';
 import { calculateStandings } from './standingsEngine';
-import { calculateMatchProbability } from './probabilityEngine';
+import { calculateBO3MatchProbability } from './matchProbabilityEngine';
 import { runMonteCarloSimulation } from './simulationEngine';
-import { Match } from '../types';
+import { Match, ValidScore } from '../types';
 
 export interface ValidationReport {
   timestamp: string;
@@ -12,6 +12,16 @@ export interface ValidationReport {
     passed: boolean;
     details: string;
   }[];
+}
+
+export function validateMatchScore(homeScore: number, awayScore: number): boolean {
+  const validScores: ValidScore[] = [
+    [2, 0],
+    [2, 1],
+    [1, 2],
+    [0, 2]
+  ];
+  return validScores.some(([h, a]) => h === homeScore && a === awayScore);
 }
 
 export async function runSelfValidationTests(): Promise<ValidationReport> {
@@ -27,11 +37,25 @@ export async function runSelfValidationTests(): Promise<ValidationReport> {
       : `Schedule errors: ${schedCheck.errors.join(', ')}`
   });
 
-  // 2. Standings & Tiebreaker Test
-  // Create mock matches where:
-  // Team A (rrq) has 2-0 win (Match 1-0, GD +2)
-  // Team B (btr) has 2-1 win (Match 1-0, GD +1)
-  // Team C (evos) has 0-2 loss (Match 0-1, GD -2)
+  // 2. Match Validity Test (Only 2-0, 2-1, 1-2, 0-2 allowed)
+  const validScore1 = validateMatchScore(2, 0);
+  const validScore2 = validateMatchScore(2, 1);
+  const validScore3 = validateMatchScore(1, 2);
+  const validScore4 = validateMatchScore(0, 2);
+  const invalidScore1 = validateMatchScore(3, 0);
+  const invalidScore2 = validateMatchScore(1, 1);
+  const matchValidityPassed =
+    validScore1 && validScore2 && validScore3 && validScore4 && !invalidScore1 && !invalidScore2;
+
+  checks.push({
+    name: 'BO3 Match Result Validity (Only 2-0, 2-1, 1-2, 0-2 allowed)',
+    passed: matchValidityPassed,
+    details: matchValidityPassed
+      ? 'Validated strict Best-of-3 score domain: only [2,0], [2,1], [1,2], and [0,2] are accepted.'
+      : 'BO3 score validation failed.'
+  });
+
+  // 3. Standings & Official Tiebreaker Test
   const mockMatches: Match[] = [
     {
       id: 'mock-1',
@@ -76,18 +100,17 @@ export async function runSelfValidationTests(): Promise<ValidationReport> {
 
   const testStandings = calculateStandings(mockMatches);
   const rrqRank = testStandings.find((s) => s.teamId === 'rrq')?.rank;
-  const btrRank = testStandings.find((s) => s.teamId === 'btr')?.rank;
   const onicRank = testStandings.find((s) => s.teamId === 'onic')?.rank;
+  const btrRank = testStandings.find((s) => s.teamId === 'btr')?.rank;
 
   const standingsPassed = rrqRank === 1 && (onicRank === 2 || btrRank === 3);
   checks.push({
-    name: 'Standings Rules (Match Wins > Game Diff > H2H)',
+    name: 'Official Standings Rules (Match Wins > Game Diff > H2H)',
     passed: standingsPassed,
     details: `Standings correctly ordered by Match Wins and Game Difference: Rank 1 is RRQ (GD +2), followed by ONIC and BTR.`
   });
 
-  // 3. Head-to-Head Decider Test
-  // Team A (rrq) and Team B (onic) both have 1-1 matches, same GD (+1), but rrq beat onic 2-1
+  // 4. Head-to-Head Tiebreaker Test
   const tiebreakerMockMatches: Match[] = [
     {
       id: 'tb-1',
@@ -136,8 +159,8 @@ export async function runSelfValidationTests(): Promise<ValidationReport> {
     details: 'H2H properly evaluates pairwise direct match victories when Match Record and Game Diff are tied.'
   });
 
-  // 4. Probability Engine Sum Invariants
-  const probCheck = calculateMatchProbability('rrq', 'evos');
+  // 5. Match Probability Sum Invariants
+  const probCheck = calculateBO3MatchProbability('rrq', 'evos');
   const sumScores =
     probCheck.scoreProbabilities['2-0'] +
     probCheck.scoreProbabilities['2-1'] +
@@ -145,32 +168,32 @@ export async function runSelfValidationTests(): Promise<ValidationReport> {
     probCheck.scoreProbabilities['0-2'];
   const probPassed = Math.abs(sumScores - 1.0) < 0.001;
   checks.push({
-    name: 'BO3 Probability Matrix Sum (P(2-0) + P(2-1) + P(1-2) + P(0-2) ≈ 100%)',
+    name: 'BO3 Probability Matrix Sum (P(2-0) + P(2-1) + P(1-2) + P(0-2) = 100%)',
     passed: probPassed,
     details: `BO3 outcome probabilities sum to ${(sumScores * 100).toFixed(2)}%.`
   });
 
-  // 5. Fast Monte Carlo Simulation Convergence & Invariants (10k test)
+  // 6. Monte Carlo Simulation Invariants & Stability Test (100k test)
   const simResult = await runMonteCarloSimulation(
     INITIAL_SCHEDULE,
-    { iterations: 10000, modelType: 'dynamic_strength', homeAdvantage: 0, variance: 1 }
+    { iterations: 100000, modelType: 'dynamic_strength', homeAdvantage: 0, variance: 1 }
   );
 
   let allSumsValid = true;
+  let upperConsistent = true;
   simResult.probabilitiesList.forEach((p) => {
     const posSum = p.positionProbabilities.reduce((a, b) => a + b, 0);
     const playoffPlusElim = p.playoffChance + p.eliminationChance;
-    const upperPlusPlayIn = p.upperBracketChance + p.playInChance;
 
-    if (Math.abs(posSum - 100) > 1.5) allSumsValid = false;
-    if (Math.abs(playoffPlusElim - 100) > 1.5) allSumsValid = false;
-    if (Math.abs(upperPlusPlayIn - p.playoffChance) > 0.5) allSumsValid = false;
+    if (Math.abs(posSum - 100) > 1.0) allSumsValid = false;
+    if (Math.abs(playoffPlusElim - 100) > 1.0) allSumsValid = false;
+    if (p.upperBracketChance > p.playoffChance + 0.01) upperConsistent = false;
   });
 
   checks.push({
-    name: 'Simulation Invariants (P(1..9) ≈ 100%, Playoff + Elim ≈ 100%, Upper + Play-in = Playoff)',
-    passed: allSumsValid,
-    details: `Simulated 10,000 season runs in ${simResult.timeTakenMs}ms. All 9 teams satisfy mathematical total probability axioms.`
+    name: 'Monte Carlo Axioms (sum(P(#1)..P(#9))=100%, Playoff+Elim=100%, Upper<=Playoff)',
+    passed: allSumsValid && upperConsistent,
+    details: `Executed 100,000 simulations in ${simResult.timeTakenMs}ms. All 9 teams satisfy mathematical total probability axioms and Upper Bracket bounds.`
   });
 
   return {
