@@ -34,6 +34,21 @@ export default function App() {
     return LocalStorageService.isAppStarted();
   });
 
+  // Scroll to top whenever route/tab or start state changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab, isStarted]);
+
+  // Tab navigation handler ensuring scroll to top on every navigation click
+  const handleTabChange = useCallback((tab: ActiveTab) => {
+    setActiveTab(tab);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
   // State: Matches with persistent saved results
   const [matches, setMatches] = useState<Match[]>(() => {
     const saved = LocalStorageService.loadSavedResults();
@@ -263,7 +278,7 @@ export default function App() {
           {/* Navigation Header */}
           <Navbar
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             completedMatchesCount={completedCount}
             totalMatches={72}
             onOpenBackup={() => setIsBackupOpen(true)}
@@ -281,7 +296,7 @@ export default function App() {
                 onSaveResult={handleSaveResult}
                 onDeleteResult={handleDeleteResult}
                 onSelectTeam={(tId) => setSelectedTeamId(tId)}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabChange}
                 onLoadSample={handleLoadSample}
                 onOpenSettings={() => setIsBackupOpen(true)}
               />
