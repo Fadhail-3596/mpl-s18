@@ -1,6 +1,7 @@
 import { Match, TeamId, QualificationStatus, TeamStanding } from '../types';
 import { TEAMS_LIST } from '../data/teams';
 import { calculateStandings } from './standingsEngine';
+import { isCompletedMatch } from './scoreValidator';
 
 export interface QualificationAnalysis {
   teamId: TeamId;
@@ -236,9 +237,7 @@ function calculateWinsToGuaranteeUpper(
  */
 export function analyzeQualifications(matches: Match[]): Record<TeamId, QualificationAnalysis> {
   const currentStandings = calculateStandings(matches);
-  const remainingMatches = matches.filter(
-    (m) => m.homeScore === null || m.awayScore === null || (m.status !== 'completed' && m.homeScore === 0 && m.awayScore === 0)
-  );
+  const remainingMatches = matches.filter((m) => !isCompletedMatch(m));
 
   const results: Record<TeamId, QualificationAnalysis> = {} as any;
 

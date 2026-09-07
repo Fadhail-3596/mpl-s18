@@ -5,6 +5,8 @@ import { calculateBO3MatchProbability, sampleBO3Outcome, MatchProbabilityResult 
 import { calculateTeamStrengths } from './teamStrengthEngine';
 import { analyzeQualifications } from './qualificationEngine';
 import { computePlayoffProbabilitiesFromDistribution, RawPositionDistribution } from './playoffProbabilityEngine';
+import { DEFAULT_SIMULATION_ITERATIONS } from '../data/rules';
+import { isCompletedMatch } from './scoreValidator';
 
 export interface SimulationOutput {
   probabilities: Record<TeamId, PlayoffProbabilities>;
@@ -52,7 +54,7 @@ export async function runMonteCarloSimulation(
   onProgress?: (progress: SimulationProgress) => void
 ): Promise<SimulationOutput> {
   const startTime = performance.now();
-  const iterations = config.iterations || 100000;
+  const iterations = config.iterations || DEFAULT_SIMULATION_ITERATIONS;
   const currentStandings = calculateStandings(matches);
   const qualifications = analyzeQualifications(matches);
 
@@ -61,11 +63,7 @@ export async function runMonteCarloSimulation(
   const unplayedMatches: Match[] = [];
 
   matches.forEach((m) => {
-    if (
-      m.homeScore !== null &&
-      m.awayScore !== null &&
-      (m.status === 'completed' || m.homeScore > 0 || m.awayScore > 0)
-    ) {
+    if (isCompletedMatch(m) && m.homeScore !== null && m.awayScore !== null) {
       completedMatches.push(m);
     } else {
       unplayedMatches.push(m);
@@ -77,7 +75,7 @@ export async function runMonteCarloSimulation(
     .map((m) => `${m.id}:${m.homeScore}-${m.awayScore}`)
     .sort()
     .join('|');
-  const cacheKey = `${completedStateStr}__iter:${iterations}__model:${config.modelType || 'dynamic'}`;
+  const cacheKey = `${completedStateStr}__iter:${iterations}__model:${config.modelType || 'dynamic'}__adv:${config.homeAdvantage ?? 0}__var:${config.variance ?? 0}`;
 
   if (simulationCache.has(cacheKey) && !onProgress) {
     const cached = simulationCache.get(cacheKey)!;

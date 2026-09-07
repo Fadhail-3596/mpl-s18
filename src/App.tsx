@@ -6,6 +6,8 @@ import { calculateStandings } from './engine/standingsEngine';
 import { runMonteCarloSimulationAsync } from './engine/simulationEngine';
 import { LocalStorageService } from './storage/localStorageService';
 import { SAMPLE_MID_SEASON_RESULTS } from './data/demoPresets';
+import { DEFAULT_SIMULATION_ITERATIONS } from './data/rules';
+import { isValidBO3Score, isCompletedMatch } from './engine/scoreValidator';
 
 import { Navbar, ActiveTab } from './components/Navbar';
 import { DashboardPage } from './pages/DashboardPage';
@@ -37,7 +39,7 @@ export default function App() {
     const saved = LocalStorageService.loadSavedResults();
     return INITIAL_SCHEDULE.map((m) => {
       const matchResult = saved[m.id];
-      if (matchResult && matchResult.homeScore !== null && matchResult.awayScore !== null) {
+      if (matchResult && isValidBO3Score(matchResult.homeScore, matchResult.awayScore)) {
         return {
           ...m,
           homeScore: matchResult.homeScore,
@@ -49,12 +51,15 @@ export default function App() {
     });
   });
 
-  // Simulation State
-  const [simConfig, setSimConfig] = useState<SimulationConfig>({
-    iterations: 25000,
-    modelType: 'dynamic_strength',
-    homeAdvantage: 0,
-    variance: 0.15
+  // Simulation State: aligned with DEFAULT_SIMULATION_ITERATIONS and saved settings
+  const [simConfig, setSimConfig] = useState<SimulationConfig>(() => {
+    const saved = LocalStorageService.getSettings();
+    return {
+      iterations: saved.simIterations || DEFAULT_SIMULATION_ITERATIONS,
+      modelType: saved.modelType || 'dynamic_strength',
+      homeAdvantage: 0,
+      variance: 0.15
+    };
   });
   const [probabilities, setProbabilities] = useState<PlayoffProbabilities[]>([]);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
@@ -71,12 +76,12 @@ export default function App() {
   }, [matches]);
 
   const completedCount = useMemo(() => {
-    return matches.filter((m) => m.homeScore !== null && m.awayScore !== null).length;
+    return matches.filter((m) => isCompletedMatch(m)).length;
   }, [matches]);
 
   // Execute Monte Carlo Simulation with full progress tracking
   const handleRunSimulation = useCallback((configToUse = simConfig, matchesToUse = matches) => {
-    const numCompleted = matchesToUse.filter((m) => m.homeScore !== null && m.awayScore !== null).length;
+    const numCompleted = matchesToUse.filter((m) => isCompletedMatch(m)).length;
     if (numCompleted === 0) {
       setProbabilities([]);
       setIsSimulating(false);
@@ -167,6 +172,11 @@ export default function App() {
 
   // Result Management Handlers
   const handleSaveResult = (matchId: string, homeScore: number, awayScore: number) => {
+    if (!isValidBO3Score(homeScore, awayScore)) {
+      showToast('Skor Tidak Valid', 'Format BO3 hanya mengizinkan skor 2-0, 2-1, 1-2, atau 0-2.', 'info');
+      return;
+    }
+
     const match = matches.find((m) => m.id === matchId);
     if (match) {
       const home = getTeam(match.homeTeam);

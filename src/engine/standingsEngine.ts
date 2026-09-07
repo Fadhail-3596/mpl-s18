@@ -1,8 +1,9 @@
 import { Match, TeamId, TeamStanding, QualificationStatus } from '../types';
 import { TEAMS_LIST, getTeam } from '../data/teams';
 import { buildH2HMatrix } from './h2hEngine';
-import { compareTeamsForOfficialRanking } from './rankingEngine';
+import { sortTeamsOfficially } from './rankingEngine';
 import { MPL_ID_S18_RULES } from '../data/rules';
+import { isCompletedMatch } from './scoreValidator';
 
 export function calculateStandings(
   matches: Match[],
@@ -49,7 +50,7 @@ export function calculateStandings(
   });
 
   sortedMatches.forEach((m) => {
-    if (m.homeScore !== null && m.awayScore !== null && (m.status === 'completed' || m.homeScore > 0 || m.awayScore > 0)) {
+    if (isCompletedMatch(m) && m.homeScore !== null && m.awayScore !== null) {
       const homeStats = statsMap[m.homeTeam];
       const awayStats = statsMap[m.awayTeam];
 
@@ -138,35 +139,19 @@ export function calculateStandings(
     };
   });
 
-  // Sort standings with official ranking tiebreaker hierarchy
-  standingsList.sort((a, b) =>
-    compareTeamsForOfficialRanking(
-      {
-        teamId: a.teamId,
-        teamName: a.team.name,
-        matchWins: a.matchWins,
-        matchLosses: a.matchLosses,
-        gamesWon: a.gamesWon,
-        gamesLost: a.gamesLost,
-        gameDifference: a.gameDifference
-      },
-      {
-        teamId: b.teamId,
-        teamName: b.team.name,
-        matchWins: b.matchWins,
-        matchLosses: b.matchLosses,
-        gamesWon: b.gamesWon,
-        gamesLost: b.gamesLost,
-        gameDifference: b.gameDifference
-      },
-      h2hMatrix
-    )
+  // Sort standings with official ranking tiebreaker hierarchy (including multi-team tie resolution)
+  const sortedStandings = sortTeamsOfficially(
+    standingsList.map((item) => ({
+      ...item,
+      teamName: item.team.name
+    })),
+    h2hMatrix
   );
 
   // Assign 1-indexed ranks
-  standingsList.forEach((item, index) => {
+  sortedStandings.forEach((item, index) => {
     item.rank = index + 1;
   });
 
-  return standingsList;
+  return sortedStandings;
 }

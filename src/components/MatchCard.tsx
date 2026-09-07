@@ -4,6 +4,7 @@ import { getTeam } from '../data/teams';
 import { TeamLogo } from './TeamLogo';
 import { Check, Edit2, Trash2, Calendar, Clock, Sparkles } from 'lucide-react';
 import { calculateMatchProbability } from '../engine/probabilityEngine';
+import { isValidBO3Score } from '../engine/scoreValidator';
 
 interface MatchCardProps {
   match: Match;
@@ -55,10 +56,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Validate BO3 score
-    const validScores = ['2-0', '2-1', '1-2', '0-2'];
-    const key = `${customHome}-${customAway}`;
-    if (!validScores.includes(key)) {
-      setErrorMsg('Invalid BO3 score. Must be 2-0, 2-1, 1-2, or 0-2.');
+    if (!isValidBO3Score(customHome, customAway)) {
+      setErrorMsg('Skor BO3 tidak valid. Harus 2-0, 2-1, 1-2, atau 0-2.');
       return;
     }
 

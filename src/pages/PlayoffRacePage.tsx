@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ProbabilityTable } from '../components/ProbabilityTable';
 import { analyzeQualifications } from '../engine/qualificationEngine';
+import { DEFAULT_SIMULATION_ITERATIONS } from '../data/rules';
 
 interface PlayoffRacePageProps {
   standings: TeamStanding[];
@@ -36,12 +37,13 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
   onSelectTeam,
   onRunSimulation,
   isSimulating = false,
-  simConfig = { iterations: 100000, modelType: 'dynamic_strength', homeAdvantage: 0, variance: 0.15 },
+  simConfig = { iterations: DEFAULT_SIMULATION_ITERATIONS, modelType: 'dynamic_strength', homeAdvantage: 0, variance: 0.15 },
   onUpdateSimConfig,
   lastRunStats,
   simProgress
 }) => {
   const [activeTab, setActiveTab] = useState<'board' | 'table'>('board');
+  const totalIterations = simConfig?.iterations || DEFAULT_SIMULATION_ITERATIONS;
 
   const upperBracket = standings.slice(0, 2);
   const playIn = standings.slice(2, 6);
@@ -143,7 +145,7 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
               <span>
                 {lastRunStats
                   ? `Simulasi selesai: ${lastRunStats.iterations.toLocaleString('id-ID')} iterasi (${lastRunStats.timeTakenMs} ms)`
-                  : 'Estimasi berbasis 100.000 simulasi'}
+                  : `Estimasi berbasis ${totalIterations.toLocaleString('id-ID')} simulasi`}
               </span>
             </div>
           </div>
@@ -168,7 +170,7 @@ export const PlayoffRacePage: React.FC<PlayoffRacePageProps> = ({
 
           <div className="text-[11px] text-slate-400 flex items-center gap-1">
             <HelpCircle className="w-3.5 h-3.5 text-[#00D4FF]" />
-            <span>Peluang adalah estimasi berdasarkan 100.000 simulasi sisa jadwal MPL ID S18.</span>
+            <span>Peluang adalah estimasi probabilistik berdasarkan {totalIterations.toLocaleString('id-ID')} simulasi Monte Carlo.</span>
           </div>
         </div>
       </div>

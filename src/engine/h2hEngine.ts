@@ -1,4 +1,5 @@
 import { Match, TeamId, H2HRecord } from '../types';
+import { isCompletedMatch } from './scoreValidator';
 
 export interface H2HMatrix {
   getRecord: (teamA: TeamId, teamB: TeamId) => H2HRecord;
@@ -31,7 +32,7 @@ export function buildH2HMatrix(matches: Match[]): H2HMatrix {
 
   // Populate from completed matches
   matches.forEach((m) => {
-    if (m.homeScore !== null && m.awayScore !== null && (m.status === 'completed' || m.homeScore > 0 || m.awayScore > 0)) {
+    if (isCompletedMatch(m) && m.homeScore !== null && m.awayScore !== null) {
       const rec = getOrCreateRecord(m.homeTeam, m.awayTeam);
       const isHomeTeamA = rec.teamA === m.homeTeam;
 
@@ -108,6 +109,7 @@ export function buildH2HMatrix(matches: Match[]): H2HMatrix {
       // Filter matches only between tied teams
       matches.forEach((m) => {
         if (
+          isCompletedMatch(m) &&
           m.homeScore !== null &&
           m.awayScore !== null &&
           tiedTeamIds.includes(m.homeTeam) &&

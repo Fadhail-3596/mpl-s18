@@ -17,14 +17,24 @@ export type TiebreakerCriterion =
   | 'HEAD_TO_HEAD_GAME_DIFF'
   | 'TOTAL_GAMES_WON';
 
+export const TOTAL_TEAMS = 9;
+export const PLAYOFF_SPOTS = 6;
+export const UPPER_BRACKET_SPOTS = 2;
+export const PLAY_IN_SPOTS = 4; // Seeds 3 to 6
+export const ELIMINATED_SPOTS = 3; // Seeds 7 to 9
+export const TOTAL_MATCHES = 72;
+export const MATCHES_PER_TEAM = 16;
+export const DEFAULT_SIMULATION_ITERATIONS = 50000;
+export const SIMULATION_ITERATION_OPTIONS = [10000, 50000, 100000, 500000] as const;
+
 export const MPL_ID_S18_RULES: CompetitionRules = {
   seasonName: 'MPL Indonesia Season 18',
-  totalTeams: 9,
-  playoffCutoff: 6,
-  upperBracketCutoff: 2,
-  playInCutoff: 6,
-  eliminatedFrom: 7,
-  regularSeasonMatchesPerTeam: 16,
+  totalTeams: TOTAL_TEAMS,
+  playoffCutoff: PLAYOFF_SPOTS,
+  upperBracketCutoff: UPPER_BRACKET_SPOTS,
+  playInCutoff: PLAYOFF_SPOTS,
+  eliminatedFrom: PLAYOFF_SPOTS + 1,
+  regularSeasonMatchesPerTeam: MATCHES_PER_TEAM,
   seriesFormat: 'BO3',
   tiebreakerHierarchy: [
     'MATCH_WINS',
