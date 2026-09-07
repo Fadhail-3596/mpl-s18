@@ -39,7 +39,20 @@ export const SAMPLE_MID_SEASON_RESULTS: Record<string, MatchScoreRecord> = {
   // Minggu, 30 Agustus 2026
   's18-w03-m06': { homeScore: 2, awayScore: 0 }, // NAVI 2 - 0 ONIC (14:00)
   's18-w03-m07': { homeScore: 0, awayScore: 2 }, // GEEK 0 - 2 RRQ (17:00)
-  's18-w03-m08': { homeScore: 2, awayScore: 1 }  // TLID 2 - 1 AE (20:00)
+  's18-w03-m08': { homeScore: 2, awayScore: 1 }, // TLID 2 - 1 AE (20:00)
+
+  // --- Week 4 ---
+  // Jumat, 4 September 2026
+  's18-w04-m01': { homeScore: 2, awayScore: 0 }, // NAVI 2 - 0 DEWA (15:00)
+  's18-w04-m02': { homeScore: 2, awayScore: 0 }, // TLID 2 - 0 RRQ (18:00)
+  // Sabtu, 5 September 2026
+  's18-w04-m03': { homeScore: 2, awayScore: 1 }, // DEWA 2 - 1 ONIC (14:00)
+  's18-w04-m04': { homeScore: 2, awayScore: 1 }, // EVOS 2 - 1 BTR (17:00)
+  's18-w04-m05': { homeScore: 2, awayScore: 0 }, // AE 2 - 0 GEEK (20:00)
+  // Minggu, 6 September 2026
+  's18-w04-m06': { homeScore: 0, awayScore: 2 }, // RRQ 0 - 2 NAVI (14:00)
+  's18-w04-m07': { homeScore: 2, awayScore: 0 }, // ONIC 2 - 0 EVOS (17:00)
+  's18-w04-m08': { homeScore: 0, awayScore: 2 }  // BTR 0 - 2 AE (20:00)
 };
 
 export const SAMPLE_RESULTS_WEEK_1_TO_4 = Object.entries(SAMPLE_MID_SEASON_RESULTS).map(

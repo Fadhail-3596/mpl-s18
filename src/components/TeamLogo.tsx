@@ -4,16 +4,18 @@ import { getTeam } from '../data/teams';
 
 interface TeamLogoProps {
   teamId: TeamId | string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'custom';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'match' | 'custom';
   className?: string;
   alt?: string;
 }
 
 const sizeClasses = {
-  sm: 'w-6 h-6 text-[9px]',
-  md: 'w-9 h-9 text-xs',
-  lg: 'w-13 h-13 sm:w-14 sm:h-14 text-sm',
-  xl: 'w-18 h-18 sm:w-20 sm:h-20 text-base font-black',
+  xs: 'w-7 h-7 min-w-[28px] min-h-[28px] text-[9px]',
+  sm: 'w-8 h-8 min-w-[32px] min-h-[32px] text-[10px]',
+  match: 'w-8 h-8 sm:w-10 sm:h-10 min-w-[32px] min-h-[32px] sm:min-w-[40px] sm:min-h-[40px] text-xs',
+  md: 'w-8 h-8 sm:w-10 sm:h-10 min-w-[32px] min-h-[32px] sm:min-w-[40px] sm:min-h-[40px] text-xs',
+  lg: 'w-10 h-10 sm:w-12 sm:h-12 min-w-[40px] min-h-[40px] sm:min-w-[48px] sm:min-h-[48px] text-sm',
+  xl: 'w-12 h-12 sm:w-14 sm:h-14 min-w-[48px] min-h-[48px] sm:min-w-[56px] sm:min-h-[56px] text-base font-black',
   custom: ''
 };
 

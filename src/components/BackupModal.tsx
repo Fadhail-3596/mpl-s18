@@ -124,7 +124,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                 <span>Yakin ingin mereset semua hasil?</span>
               </div>
               <p className="text-xs text-red-200/80">
-                Semua hasil pertandingan yang telah dimasukkan secara manual akan dihapus dan dikembalikan ke awal musim.
+                Semua hasil pertandingan dan skenario akan dihapus. Aplikasi akan kembali ke tampilan awal (Input Manual / Gunakan Template).
               </p>
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
@@ -137,9 +137,9 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                 <button
                   type="button"
                   onClick={handleConfirmReset}
-                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-500 shadow-md shadow-red-900/40 transition-all"
+                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-500 shadow-md shadow-red-900/40 transition-all cursor-pointer"
                 >
-                  Reset Semua
+                  Reset Semua & Kembali ke Awal
                 </button>
               </div>
             </div>
@@ -148,15 +148,15 @@ export const BackupModal: React.FC<BackupModalProps> = ({
               {/* Sample Data Button */}
               <div className="p-3.5 bg-[#181B24] rounded-xl border border-slate-800/80 flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-xs font-bold text-slate-200">Gunakan Template Hasil Week 1–3</div>
-                  <div className="text-[11px] text-slate-400">Otomatis isi 24 pertandingan realistis Pekan 1–3 ke LocalStorage</div>
+                  <div className="text-xs font-bold text-slate-200">Gunakan Template Week 1–4</div>
+                  <div className="text-[11px] text-slate-400">Muat 32 hasil aktual resmi Pekan 1–4 ke LocalStorage</div>
                 </div>
                 <button
                   onClick={() => {
                     onLoadSample();
                     onClose();
                   }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 shrink-0 transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#00D4FF] bg-[#7C5CFF]/15 hover:bg-[#7C5CFF]/25 border border-[#7C5CFF]/40 shrink-0 transition-all cursor-pointer"
                 >
                   Gunakan Template
                 </button>

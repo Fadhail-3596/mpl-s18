@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Match, TeamId } from '../types';
 import { getTeam } from '../data/teams';
+import { TeamLogo } from './TeamLogo';
 import { Check, Edit2, Trash2, Calendar, Clock, Sparkles } from 'lucide-react';
 import { calculateMatchProbability } from '../engine/probabilityEngine';
 
@@ -128,12 +129,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           
           {/* Home Team */}
           <div className="flex-1 flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs text-white shadow-sm shrink-0 border border-white/10"
-              style={{ backgroundColor: homeTeam.primaryColor }}
-            >
-              {homeTeam.shortName}
-            </div>
+            <TeamLogo teamId={homeTeam.id} size="match" />
             <div className="min-w-0">
               <div className={`font-bold text-sm truncate ${
                 isCompletedOrOverridden && currentHomeScore! > currentAwayScore!
@@ -181,12 +177,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 Est: {(odds.awayWinProbability * 100).toFixed(0)}%
               </div>
             </div>
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs text-white shadow-sm shrink-0 border border-white/10"
-              style={{ backgroundColor: awayTeam.primaryColor }}
-            >
-              {awayTeam.shortName}
-            </div>
+            <TeamLogo teamId={awayTeam.id} size="match" />
           </div>
         </div>
 

@@ -2,9 +2,10 @@ import React from 'react';
 import { TeamId, TeamStanding, PlayoffProbabilities, Match } from '../types';
 import { getTeam } from '../data/teams';
 import { TeamLogo } from '../components/TeamLogo';
-import { X, Trophy, Swords, Zap, CheckCircle2, AlertTriangle, ShieldX, Calendar, Clock, Award } from 'lucide-react';
+import { X, Trophy, Swords, Zap, CheckCircle2, AlertTriangle, ShieldX, Calendar, Clock, Award, Compass } from 'lucide-react';
 import { getZoneByRank } from '../data/rules';
-import { analyzeQualifications } from '../engine/qualificationEngine';
+import { analyzeQualifications, getTeamFactualInsight } from '../engine/qualificationEngine';
+import { calculateStandings } from '../engine/standingsEngine';
 
 interface TeamDetailModalProps {
   teamId: TeamId | null;
@@ -28,6 +29,8 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
   const zone = getZoneByRank(standing.rank);
   const qualificationMap = analyzeQualifications(allMatches);
   const qAnalysis = qualificationMap[teamId];
+  const currentStandings = calculateStandings(allMatches);
+  const factualInsight = qAnalysis ? getTeamFactualInsight(teamId, allMatches, currentStandings, qAnalysis) : null;
 
   const playoffChance = probabilities ? probabilities.playoffChance : 0;
   const upperChance = probabilities ? probabilities.upperBracketChance : 0;
@@ -114,8 +117,10 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
                     <span className="text-emerald-400 font-bold">✓ Sudah Pasti Lolos Playoff</span>
                   ) : qAnalysis?.isEliminated ? (
                     <span className="text-red-400 font-bold">✗ Dipastikan Gugur</span>
+                  ) : qAnalysis?.winsNeededToGuaranteePlayoff !== null && qAnalysis?.winsNeededToGuaranteePlayoff !== undefined ? (
+                    `Butuh ${qAnalysis.winsNeededToGuaranteePlayoff} kemenangan untuk mengunci`
                   ) : (
-                    `Butuh ${qAnalysis?.magicNumberPlayoff ?? '-'} kemenangan lagi`
+                    <span className="text-slate-400">Belum dapat dikunci sendiri</span>
                   )}
                 </div>
               </div>
@@ -138,8 +143,10 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
                 <div className="text-[11px] text-slate-400 mt-2">
                   {qAnalysis?.clinchedUpperBracket ? (
                     <span className="text-sky-400 font-bold">✓ Lolos Upper Bracket</span>
+                  ) : qAnalysis?.winsNeededToGuaranteeUpper !== null && qAnalysis?.winsNeededToGuaranteeUpper !== undefined ? (
+                    `Butuh ${qAnalysis.winsNeededToGuaranteeUpper} kemenangan untuk mengunci`
                   ) : (
-                    `Butuh ${qAnalysis?.magicNumberUpper ?? '-'} kemenangan lagi`
+                    <span className="text-slate-400">Belum dapat dikunci sendiri</span>
                   )}
                 </div>
               </div>
@@ -163,7 +170,7 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
                   {qAnalysis?.isEliminated ? (
                     <span className="text-red-400 font-bold">✗ Telah Tereliminasi</span>
                   ) : (
-                    `Toleransi kalah: ${qAnalysis?.tragicNumber ?? '-'} match`
+                    `Potensi posisi terburuk: #${standing.worstPossibleRank}`
                   )}
                 </div>
               </div>
@@ -213,23 +220,78 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Analisis Sisa Musim & Proyeksi Skenario */}
-          <div className="bg-[#181B24] p-4 rounded-xl border border-slate-800 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-              <Award className="w-4 h-4 text-[#00D4FF]" />
-              <span>Analisis Sisa Musim & Skenario Pergeseran</span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              {standing.matchesRemaining > 0 ? (
-                <>
-                  Dengan <span className="text-white font-bold">{remainingMatches.length} pertandingan tersisa</span>, {team.name} berpotensi mengumpulkan hingga <span className="text-emerald-400 font-bold">{standing.matchWins + remainingMatches.length} kemenangan</span> (Posisi maksimal: #{standing.bestPossibleRank}). Hasil dari ribuan simulasi Monte Carlo menunjukkan bahwa performa di laga-laga sisa akan sangat menentukan apakah tim ini mampu melonjak ke Upper Bracket atau mempertahankan tiket Playoff.
-                </>
-              ) : (
-                <>
-                  Seluruh <span className="text-white font-bold">16 pertandingan</span> Regular Season telah selesai dimainkan. Posisi akhir {team.name} terkunci di peringkat #{standing.rank}.
-                </>
+          {/* 4 Mathematical Qualification Bounds */}
+          <div className="bg-[#181B24] p-4 rounded-xl border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+                <Award className="w-4 h-4 text-[#00D4FF]" />
+                <span>Kalkulasi Matematika Kelolosan</span>
+              </div>
+              {factualInsight && (
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                  factualInsight.scheduleDifficultyLabel === 'Tinggi'
+                    ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                    : factualInsight.scheduleDifficultyLabel === 'Sedang'
+                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                    : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                }`}>
+                  Tingkat Kesulitan Jadwal: {factualInsight.scheduleDifficultyLabel}
+                </span>
               )}
-            </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Maksimum Match Wins</div>
+                <div className="text-base font-black font-mono text-emerald-400 mt-0.5">
+                  {qAnalysis?.maxPossibleWins ?? standing.matchWins + remainingMatches.length} W
+                </div>
+                <div className="text-[10px] text-slate-500">Plafon kemenangan</div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Min. Wins Tetap Hidup</div>
+                <div className="text-base font-black font-mono text-amber-400 mt-0.5">
+                  {qAnalysis?.minWinsToStayAlive ?? 0} W
+                </div>
+                <div className="text-[10px] text-slate-500">Hindari eliminasi dini</div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Kunci Tiket Playoff</div>
+                <div className="text-base font-black font-mono text-[#00D4FF] mt-0.5">
+                  {qAnalysis?.clinchedPlayoff ? (
+                    'Terkunci'
+                  ) : qAnalysis?.winsNeededToGuaranteePlayoff !== null ? (
+                    `${qAnalysis?.winsNeededToGuaranteePlayoff} W`
+                  ) : (
+                    'Belum bisa'
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-500">Secara mandiri (Top 6)</div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Kunci Upper Bracket</div>
+                <div className="text-base font-black font-mono text-purple-400 mt-0.5">
+                  {qAnalysis?.clinchedUpperBracket ? (
+                    'Terkunci'
+                  ) : qAnalysis?.winsNeededToGuaranteeUpper !== null ? (
+                    `${qAnalysis?.winsNeededToGuaranteeUpper} W`
+                  ) : (
+                    'Belum bisa'
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-500">Secara mandiri (Top 2)</div>
+              </div>
+            </div>
+
+            {/* Factual, calculation-driven insight */}
+            <div className="pt-2 border-t border-slate-800/80">
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                {factualInsight?.summaryInsight}
+              </p>
+            </div>
           </div>
 
           {/* Schedule / Match List */}

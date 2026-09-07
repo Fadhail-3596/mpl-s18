@@ -5,7 +5,8 @@ const STORAGE_KEYS = {
   SCENARIOS: 'mpl_s18_scenarios',
   SETTINGS: 'mpl_s18_settings',
   ACTIVE_SCENARIO: 'mpl_s18_active_scenario',
-  OVERRIDE_SCENARIOS: 'mpl_s18_overrides'
+  OVERRIDE_SCENARIOS: 'mpl_s18_overrides',
+  STARTED: 'mpl_s18_app_started'
 };
 
 export interface MatchScoreRecord {
@@ -208,6 +209,26 @@ export const LocalStorageService = {
     }
   },
 
+  isAppStarted(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.STARTED) === 'true';
+    } catch {
+      return false;
+    }
+  },
+
+  setAppStarted(started: boolean): void {
+    try {
+      if (started) {
+        localStorage.setItem(STORAGE_KEYS.STARTED, 'true');
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.STARTED);
+      }
+    } catch (e) {
+      console.error('Failed to set app started state', e);
+    }
+  },
+
   clearAllData(): void {
     this.resetAllData();
   },
@@ -219,6 +240,7 @@ export const LocalStorageService = {
       localStorage.removeItem(STORAGE_KEYS.SETTINGS);
       localStorage.removeItem(STORAGE_KEYS.ACTIVE_SCENARIO);
       localStorage.removeItem(STORAGE_KEYS.OVERRIDE_SCENARIOS);
+      localStorage.removeItem(STORAGE_KEYS.STARTED);
     } catch (e) {
       console.error('Failed to reset all data', e);
     }

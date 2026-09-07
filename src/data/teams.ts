@@ -9,7 +9,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#1e1b1e',
     accentColor: '#f87171',
     logo: '/teams/ae.svg',
-    rating: 1510
+    rating: 1500
   },
   btr: {
     id: 'btr',
@@ -19,7 +19,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#ffffff',
     accentColor: '#fb7185',
     logo: '/teams/btr.svg',
-    rating: 1560
+    rating: 1500
   },
   dewa: {
     id: 'dewa',
@@ -29,7 +29,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#000000',
     accentColor: '#fde047',
     logo: '/teams/dewa.svg',
-    rating: 1470
+    rating: 1500
   },
   evos: {
     id: 'evos',
@@ -39,7 +39,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#0369a1',
     accentColor: '#38bdf8',
     logo: '/teams/evos.svg',
-    rating: 1530
+    rating: 1500
   },
   geek: {
     id: 'geek',
@@ -49,7 +49,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#171717',
     accentColor: '#fca5a5',
     logo: '/teams/geek.svg',
-    rating: 1490
+    rating: 1500
   },
   navi: {
     id: 'navi',
@@ -69,7 +69,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#0f172a',
     accentColor: '#facc15',
     logo: '/teams/onic.svg',
-    rating: 1575
+    rating: 1500
   },
   rrq: {
     id: 'rrq',
@@ -79,7 +79,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#7c2d12',
     accentColor: '#fb923c',
     logo: '/teams/rrq.svg',
-    rating: 1580
+    rating: 1500
   },
   tlid: {
     id: 'tlid',
@@ -89,7 +89,7 @@ export const TEAMS: Record<TeamId, Team> = {
     secondaryColor: '#0284c7',
     accentColor: '#60a5fa',
     logo: '/teams/tlid.svg',
-    rating: 1565
+    rating: 1500
   }
 };
 

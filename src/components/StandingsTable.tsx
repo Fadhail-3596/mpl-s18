@@ -67,7 +67,7 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
             <span>Klasemen MPL ID S18 Regular Season</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Urutan: 1. Match Point (Wins) • 2. Net Game Win (Game Diff) • 3. Head-to-Head • 4. Game Win
+            Urutan: 1. Match Wins • 2. Game Difference (Net Game Win) • 3. Head-to-Head • 4. Game Win
           </p>
         </div>
 
@@ -88,18 +88,16 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
         </div>
       </div>
 
-      {/* Official MPL ID Table Format */}
+      {/* Simplified Standings Table Format */}
       <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#0D0F14] text-[11px] font-black text-slate-400 uppercase tracking-wider border-b border-slate-800">
               <th className="py-3 px-3 text-center w-12">#</th>
-              <th className="py-3 px-3 sm:px-4 min-w-[200px]">Team</th>
-              <th className="py-3 px-3 text-center font-bold text-white">Match Point</th>
-              <th className="py-3 px-3 text-center font-bold">Match W-L</th>
-              <th className="py-3 px-3 text-center font-bold text-[#00D4FF]">Net Game Win</th>
-              <th className="py-3 px-3 text-center font-bold">Game W-L</th>
-              {!compact && <th className="py-3 px-3 text-center hidden md:table-cell">Form (Last 5)</th>}
+              <th className="py-3 px-4 min-w-[180px]">Team</th>
+              <th className="py-3 px-3 text-center font-bold text-white">W - L</th>
+              <th className="py-3 px-3 text-center font-bold text-[#00D4FF]">Game Diff</th>
+              <th className="py-3 px-3 text-center hidden sm:table-cell">Form (Last 5)</th>
               <th className="py-3 px-3 text-center">Status</th>
               <th className="py-3 px-2 text-center w-8"></th>
             </tr>
@@ -108,7 +106,6 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
             {standings.map((row) => {
               const isUpper = row.rank <= 2;
               const isPlayoff = row.rank > 2 && row.rank <= 6;
-              const isEliminatedZone = row.rank > 6;
               const isDiffPositive = row.gameDifference > 0;
               const isDiffZero = row.gameDifference === 0;
 
@@ -129,7 +126,6 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
                         {row.rank}
                       </span>
                     </div>
-                    {/* Left edge bar */}
                     <div
                       className={`absolute left-0 top-0 bottom-0 w-1.5 ${
                         isUpper ? 'bg-emerald-500' : isPlayoff ? 'bg-cyan-500' : 'bg-rose-500/60'
@@ -138,7 +134,7 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
                   </td>
 
                   {/* Team (Logo + Short Name + Official Name) */}
-                  <td className="py-3.5 px-3 sm:px-4">
+                  <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
                       <TeamLogo teamId={row.teamId} size="md" />
                       <div className="min-w-0">
@@ -152,21 +148,14 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
                     </div>
                   </td>
 
-                  {/* Match Point (Match Wins) */}
-                  <td className="py-3.5 px-3 text-center">
-                    <span className="font-mono font-black text-base sm:text-lg text-white">
-                      {row.matchWins}
-                    </span>
-                  </td>
-
-                  {/* Match W-L */}
-                  <td className="py-3.5 px-3 text-center font-mono font-bold text-xs sm:text-sm text-slate-200">
+                  {/* Match W - L */}
+                  <td className="py-3.5 px-3 text-center font-mono font-black text-sm sm:text-base text-slate-100">
                     <span className="text-emerald-400">{row.matchWins}</span>
                     <span className="text-slate-600 mx-1.5">-</span>
                     <span className="text-rose-400">{row.matchLosses}</span>
                   </td>
 
-                  {/* Net Game Win (Game Difference) */}
+                  {/* Game Difference */}
                   <td className="py-3.5 px-3 text-center">
                     <span
                       className={`inline-flex items-center px-2.5 py-1 rounded-lg font-mono font-black text-xs sm:text-sm ${
@@ -181,36 +170,27 @@ export const StandingsTable: React.FC<StandingsTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Game W-L */}
-                  <td className="py-3.5 px-3 text-center font-mono font-bold text-xs sm:text-sm text-slate-300">
-                    <span>{row.gamesWon}</span>
-                    <span className="text-slate-600 mx-1.5">-</span>
-                    <span>{row.gamesLost}</span>
-                  </td>
-
                   {/* Form (Last 5) */}
-                  {!compact && (
-                    <td className="py-3.5 px-3 text-center hidden md:table-cell">
-                      <div className="flex items-center justify-center gap-1">
-                        {row.form.length === 0 ? (
-                          <span className="text-slate-600 text-xs font-mono">-</span>
-                        ) : (
-                          row.form.map((res, i) => (
-                            <span
-                              key={i}
-                              className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black ${
-                                res === 'W'
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                              }`}
-                            >
-                              {res}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    </td>
-                  )}
+                  <td className="py-3.5 px-3 text-center hidden sm:table-cell">
+                    <div className="flex items-center justify-center gap-1">
+                      {row.form.length === 0 ? (
+                        <span className="text-slate-600 text-xs font-mono">-</span>
+                      ) : (
+                        row.form.map((res, i) => (
+                          <span
+                            key={i}
+                            className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black ${
+                              res === 'W'
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                                : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                            }`}
+                          >
+                            {res}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </td>
 
                   {/* Playoff Status */}
                   <td className="py-3.5 px-3 text-center">
