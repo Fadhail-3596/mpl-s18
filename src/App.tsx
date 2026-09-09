@@ -346,7 +346,7 @@ export default function App() {
               <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60 w-full sm:w-auto justify-center">
                 <span className="text-slate-400 font-medium">Karya:</span>
                 <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#7C5CFF]/15 to-[#00D4FF]/15 border border-[#7C5CFF]/30 font-bold text-slate-200">
-                  Moh. Fadhailurrahman
+                  Kingdom Baik
                 </span>
               </div>
 
